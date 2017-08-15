@@ -1,0 +1,63 @@
+{
+  "name": "webpack-library-starter",
+  "version": "0.3.0",
+  "description": "Produce universal library with webpack and es6",
+  "main": "lib/zc-core.min.js",
+  "scripts": {
+    "build": "webpack --env build",
+    "dev": "webpack --progress --colors --watch --env dev",
+    "test": "mocha --compilers js:babel-core/register --colors ./test/*.spec.js",
+    "test:watch": "mocha --compilers js:babel-core/register --colors -w ./test/*.spec.js"
+  },
+  "devDependencies": {
+    "babel-cli": "6.24.1",
+    "babel-core": "6.24.1",
+    "babel-eslint": "7.2.3",
+    "babel-loader": "7.0.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-preset-env": "^1.6.0",
+    "chai": "3.5.0",
+    "eslint": "3.19.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-loader": "1.7.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.2.1",
+    "mocha": "3.3.0",
+    "webpack": "3.1.0",
+    "yargs": "7.1.0"
+  },
+  "dependencies": {
+    "redux-saga": "0.x",
+    "immutable": "3.x",
+    "reselect": "2.x",
+    "lodash": "4.x",
+    "xdate": "0.x"
+  },
+  "peerDependencies": {
+    "redux-saga": "0.x",
+    "immutable": "3.x",
+    "reselect": "2.x",
+    "lodash": "4.x",
+    "xdate": "0.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/krasimir/webpack-library-starter.git"
+  },
+  "keywords": [
+    "webpack",
+    "es6",
+    "starter",
+    "library",
+    "universal",
+    "umd",
+    "commonjs"
+  ],
+  "author": "Krasimir Tsonev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/krasimir/webpack-library-starter/issues"
+  },
+  "homepage": "https://github.com/krasimir/webpack-library-starter"
+}

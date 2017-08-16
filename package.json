@@ -1,5 +1,5 @@
 {
-  "name": "webpack-library-starter",
+  "name": "zc-core",
   "version": "0.3.0",
   "description": "Produce universal library with webpack and es6",
   "main": "lib/zc-core.min.js",

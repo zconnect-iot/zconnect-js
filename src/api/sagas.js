@@ -7,22 +7,22 @@ import { selectRequestPollingInterval, selectTimeSinceLastFetch, selectRequestRe
 import endpoints from './endpoints'
 import { apifetch } from './utils'
 
-export default function configureSagas(jwtStore, baseURL) {
+export default function configureSagas(Sentry, jwtStore, baseURL) {
   function* secureApiSaga(...args) {
     let token = ''
     try {
       token = yield call(jwtStore.get)
-      const response = yield apifetch(...args, token = token.password)
+      const response = yield apifetch(baseURL, ...args, token = token.password)
       return response
     } catch (error) {
-      if (error.response.status === 401 || error.response.status === 403 || !token) {
+      if (!token || error.response.status === 401 || error.response.status === 403) {
         try {  // First try to get a new token and reperform request.
           // yield* call(sagas.refreshJWT().worker)
           // token = yield call(getJWT)
-          const response = yield apifetch(...arguments, token = token.password)
+          const response = yield apifetch(baseURL, ...args, token = token.password)
           return response
         } catch (jwterr) {
-          // Sentry.captureMessage('Could not perform request after re-fetching JWT')
+          Sentry.captureMessage('Could not perform request after re-fetching JWT')
           console.log('jwterr', jwterr)
           // yield put(logout())
         }
@@ -31,10 +31,10 @@ export default function configureSagas(jwtStore, baseURL) {
     }
   }
 
-  function* secureApiSagaNoLogout() {
+  function* secureApiSagaNoLogout(...args) {
     let token = ''
     token = yield call(jwtStore.get)
-    const response = yield apifetch(...arguments, token = token.password)
+    const response = yield apifetch(baseURL, ...args, token = token.password)
     return response
   }
 
@@ -49,7 +49,7 @@ export default function configureSagas(jwtStore, baseURL) {
       .filter(param => !used[param[0]])
       .map(param => `${param[0]}=${param[1]}`)
       .join('&')
-    return queryString ? `${baseURL}${formattedUrl}?${queryString}` : `${baseURL}${formattedUrl}`
+    return queryString ? `${formattedUrl}?${queryString}` : formattedUrl
   }
 
   // If param is a selector yield select(it) otherwise return the supplied value
@@ -106,7 +106,7 @@ export default function configureSagas(jwtStore, baseURL) {
     }
   }
 
-  function* apiWatcher() {
+  function* watcher() {
     yield [
       takeEvery([POLL_REQUEST, STOP_POLL_REQUEST], apiPoll),
       takeEvery(REQUEST, apiRequest),
@@ -118,6 +118,6 @@ export default function configureSagas(jwtStore, baseURL) {
     secureApiSagaNoLogout,
     apiRequest,
     apiPoll,
-    apiWatcher,
+    watcher,
   }
 }

@@ -1,17 +1,17 @@
-import actions from './api/actions'
-import constants from './api/constants'
-import reducer from './api/reducer'
-import { configureSagas } from './api/sagas'
+import apiActions from './api/actions'
+import apiConstants from './api/constants'
+import apiReducer from './api/reducer'
+import configureSagas from './api/sagas'
 
-var sagas
+let apiSagas = {}
 
-export function config({ jwtStore, baseURL }) {
-  sagas = configureSagas(jwtStore, baseURL)
+export function config({ Sentry, jwtStore, baseURL }) {
+  apiSagas = configureSagas(Sentry, jwtStore, baseURL)
 }
 
 export {
-  sagas,
-  constants,
-  reducer,
-  actions,
+  apiSagas,
+  apiConstants,
+  apiReducer,
+  apiActions,
 }

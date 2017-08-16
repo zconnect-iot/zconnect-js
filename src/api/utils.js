@@ -1,7 +1,7 @@
 import { APIError } from './errors'
 import { serializeEJSON, deserializeEJSON } from './eJSON'
 
-export function getHeaders(method, token, resetToken) {
+export function getHeaders(method, token) {
   const headers = new Headers()
   headers.append('Accept', 'application/json')
   headers.append('Content-Type', 'application/json')
@@ -9,7 +9,8 @@ export function getHeaders(method, token, resetToken) {
   return headers
 }
 
-export function apifetch(url, method = 'GET', body = {}, token = undefined, resetToken = false) {
+export function apifetch(baseURL, url, method = 'GET', body = {}, token = undefined, resetToken = false) {
+  const fullUrl = `${baseURL}${url}`
   const headers = getHeaders(method, token, resetToken)
   const details = {
     method,

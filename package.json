@@ -32,7 +32,8 @@
     "immutable": "3.x",
     "reselect": "2.x",
     "lodash": "4.x",
-    "xdate": "0.x"
+    "xdate": "0.x",
+    "jwt-decode": "^2.1.0"
   },
   "peerDependencies": {
     "redux-saga": "0.x",

@@ -14,13 +14,13 @@ import {
   REFRESH_JWT,
 } from './constants'
 
-export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTimeout, processError }) {
+export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTimeout }) {
   function* logoutSaga() {
     try {
       yield call(jwtStore.delete)
     }
     catch (error) {
-      yield call(processError, error)
+      Sentry.captureException(error)
     }
     // Remove user details from sentry
     Sentry.setUserContext({ email: '', userID: '', username: '', extra: {} })
@@ -57,7 +57,7 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
       yield put(actions.setUserGroups(userGroups))
     }
     catch (error) {
-      yield call(processError, error)
+      Sentry.captureException(error)
     }
   }
 
@@ -68,31 +68,30 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
     const email = (action.email || '').toLowerCase()
     const password = action.password || ''
     const body = { email, password }
-    let result
     try {
       // Make call
-      result = yield race({
+      const { timeout, response } = yield race({
         response: call(apifetch, baseURL, url, method, body),
         timeout: call(delay, loginTimeout),
       })
-      if (result.timeout) throw new Error('timeout')
+      if (timeout) throw new Error('timeout')
+
+      // Securely store login token
+      yield call(jwtStore.set, action.email, response.token)
+      const JWTokenDecoded = deserializeEJSON(jwtDecode(response.token))
+      const userID = JWTokenDecoded.oid.oid
+
+      // Log the user in with Sentry
+      Sentry.setUserContext({ email, userID, username: '', extra: {} })
+
+      const userGroups = JWTokenDecoded.aud
+      yield put(actions.setUserGroups(userGroups))
+      yield put(actions.loginUserState(userID, email))
     }
     catch (err) {
-      const processedError = yield call(processError, err)
-      yield put(actions.loginFailure(processedError))
+      Sentry.captureException(err)
+      yield put(actions.loginFailure(err))
     }
-    const { response } = result
-    // Securely store login token
-    yield call(jwtStore.set, action.email, response.token)
-    const JWTokenDecoded = deserializeEJSON(jwtDecode(response.token))
-    const userID = JWTokenDecoded.oid.oid
-
-    // Log the user in with Sentry
-    Sentry.setUserContext({ email, userID, username: '', extra: {} })
-
-    const userGroups = JWTokenDecoded.aud
-    yield put(actions.setUserGroups(userGroups))
-    yield put(actions.loginUserState(userID, email))
   }
 
   // Register User:
@@ -113,8 +112,8 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
       yield put(actions.registerUserSuccess())
     }
     catch (error) {
-      const processedError = yield call(processError, error)
-      yield put(actions.registerUserError(processedError))
+      Sentry.captureException(error)
+      yield put(actions.registerUserError(error))
     }
   }
 
@@ -132,8 +131,8 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
       yield put(actions.resetPasswordSuccess())
     }
     catch (error) {
-      const processedError = yield call(processError, error)
-      yield put(actions.resetPasswordError(processedError))
+      Sentry.captureException(error)
+      yield put(actions.resetPasswordError(error))
     }
   }
 

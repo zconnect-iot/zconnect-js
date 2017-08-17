@@ -34,9 +34,35 @@ export const selectResetPasswordAPIState = createSelector(
   substate => substate.get('resetPasswordAPIState').toJS(),
 )
 
-export const selectErrorDetails = createSelector(
+export const selectError = createSelector(
   selectAuthDomain,
-  substate => substate.get('error').toJS(),
+  substate => substate.get('error'),
+)
+
+export const selectErrorJsonTitle = createSelector(
+  selectError,
+  error => error.getIn(['response', 'json', 'title']),
+)
+
+export const selectErrorJsonDescription = createSelector(
+  selectError,
+  error => error.getIn(['response', 'json', 'description']),
+)
+
+export const selectErrorStatus = createSelector(
+  selectError,
+  error => error.getIn(['response', 'status']),
+)
+
+export const selectErrorDetails = createSelector(
+  selectErrorStatus,
+  selectErrorJsonTitle,
+  selectErrorJsonDescription,
+  (status, title, description) => {
+    if (status && (status === 404 || status === 403)) return 'LoginForm.invalid'
+    if (description && description === 'User has not confirmed their email') return 'LoginForm.emailconfirm'
+    return 'Error.tryagain'
+  },
 )
 
 export const selectUserLoggedIn = createSelector(

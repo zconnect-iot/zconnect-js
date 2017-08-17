@@ -74,18 +74,15 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     }
     const url = formatUrl(config.url, params)
     yield put(requestFetching(endpoint, params))
-    let response
-    let error
     try {
-      response = yield call(secureApiSaga, url, config.method, payload)
+      const response = yield call(secureApiSaga, url, config.method, payload)
       yield put(requestFetched(endpoint, params, response))
+      return response
     }
     catch (e) {
-      error = e
       yield put(requestFailed(endpoint, params, e))
+      throw e
     }
-    if (!error) return response
-    throw error
   }
 
   function* apiPoll(action) {

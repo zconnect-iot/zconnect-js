@@ -13,9 +13,9 @@ import configureAuthSagas from './auth/sagas'
 let apiSagas = {}
 let authSagas = {}
 
-export function config({ Sentry, jwtStore, baseURL, loginTimeout, processError, endpoints }) {
-  authSagas = configureAuthSagas(Sentry, jwtStore, baseURL, loginTimeout, processError)
-  apiSagas = configureApiSagas(Sentry, jwtStore, baseURL, endpoints, authSagas.refreshJWT)
+export function configure(appDependencies) {
+  authSagas = configureAuthSagas(appDependencies)
+  apiSagas = configureApiSagas(appDependencies, authSagas.refreshJWT)
 }
 
 export {

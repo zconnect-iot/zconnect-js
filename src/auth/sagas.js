@@ -14,7 +14,7 @@ import {
   REFRESH_JWT,
 } from './constants'
 
-export default function configureAuthSagas(Sentry, jwtStore, baseURL, loginTimeout, processError) {
+export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTimeout, processError }) {
   function* logoutSaga() {
     try {
       yield call(jwtStore.delete)

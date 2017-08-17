@@ -7,7 +7,7 @@ import { selectRequestPollingInterval, selectTimeSinceLastFetch, selectRequestRe
 import { apifetch } from './utils'
 import { logout } from '../auth/actions'
 
-export default function configureSagas(Sentry, jwtStore, baseURL, endpoints, refreshJWT) {
+export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints }, refreshJWT) {
   function* secureApiSaga(...args) {
     let token = ''
     try {

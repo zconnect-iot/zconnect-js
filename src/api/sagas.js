@@ -4,27 +4,28 @@ import { put, call, select } from 'redux-saga/effects'
 import { requestFetching, requestFetched, requestFailed, requestCacheUsed, stopPollApiRequest } from './actions'
 import { REQUEST, POLL_REQUEST, STOP_POLL_REQUEST } from './constants'
 import { selectRequestPollingInterval, selectTimeSinceLastFetch, selectRequestResponse } from './selectors'
-import endpoints from './endpoints'
 import { apifetch } from './utils'
+import { logout } from '../auth/actions'
 
-export default function configureSagas(Sentry, jwtStore, baseURL) {
+export default function configureSagas(Sentry, jwtStore, baseURL, endpoints, refreshJWT) {
   function* secureApiSaga(...args) {
     let token = ''
     try {
       token = yield call(jwtStore.get)
       const response = yield apifetch(baseURL, ...args, token = token.password)
       return response
-    } catch (error) {
+    }
+    catch (error) {
       if (!token || error.response.status === 401 || error.response.status === 403) {
         try {  // First try to get a new token and reperform request.
-          // yield* call(sagas.refreshJWT().worker)
-          // token = yield call(getJWT)
-          const response = yield apifetch(baseURL, ...args, token = token.password)
+          yield* call(refreshJWT)
+          token = yield call(jwtStore.get)
+          const response = yield apifetch(baseURL, ...args, token.password)
           return response
-        } catch (jwterr) {
+        }
+        catch (jwterr) {
           Sentry.captureMessage('Could not perform request after re-fetching JWT')
-          console.log('jwterr', jwterr)
-          // yield put(logout())
+          yield put(logout())
         }
       }
       throw error

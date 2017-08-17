@@ -44,6 +44,13 @@ const config = {
     modules: [path.resolve('./node_modules'), path.resolve('./src')],
     extensions: ['.json', '.js']
   },
+  externals: {
+    'redux-saga': 'redux-saga',
+    immutable: 'immutable',
+    reselect: 'reselect',
+    lodash: 'lodash',
+    xdate: 'xdate',
+  },
   plugins: plugins
 };
 

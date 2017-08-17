@@ -21,7 +21,7 @@ export function apifetch(baseURL, url, method = 'GET', body = {}, token = undefi
   if (method.toLowerCase() === 'post') {
     details.body = JSON.stringify(serializeEJSON(body))
   }
-  if (__DEV__) console.log(`%c ${method}: ${url}`, 'background: lightblue', details.body)
+  if (__DEV__) console.log(`%c ${method}: ${fullUrl}`, 'background: lightblue', details.body)
   return fetch(fullUrl, details)
     .then((response) => {
       if (response.json) {
@@ -45,27 +45,3 @@ export function apifetch(baseURL, url, method = 'GET', body = {}, token = undefi
       throw e
     })
 }
-
-// export function processError(error, sentryConfig) {
-//   let ignore = false
-//   let extra
-//   if (error.name === 'APIError') {
-//     const json = error.response.json || {}
-//     extra = Object.assign(
-//       error.response,
-//       json,
-//       { name: error.name },
-//     )
-//
-//     const ignoredErrors = AppSettings.sentryIgnore
-//
-//     // Do not captureException with Sentry if error matches the properties in ignoredErrors
-//     ignore = ignoredErrors[error.url] &&
-//       ignoredErrors[error.url][error.status]
-//   }
-//
-//   if (!ignore) {
-//     Sentry.captureException(error, { extra, ...sentryConfig })
-//   }
-//   return error
-// }

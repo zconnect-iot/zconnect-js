@@ -2,7 +2,7 @@
   "name": "zc-core",
   "version": "0.3.0",
   "description": "Produce universal library with webpack and es6",
-  "main": "lib/zc-core.min.js",
+  "main": "lib/zc-core.js",
   "scripts": {
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",

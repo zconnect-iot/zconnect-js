@@ -52,11 +52,11 @@ Config:
 ```
 Container:
 ```
-import { apiRequest } from '../../api/actions'
+import { apiActions } from 'zc-core'
 ...
 const mapDispatchToProps = dispatch => ({
   ...
-  fetchBrands: () => dispatch(apiRequest('getBrands')),
+  fetchBrands: () => dispatch(apiActions.apiRequest('getBrands')),
 })
 ```
 
@@ -77,11 +77,11 @@ config:
 ```
 Container:
 ```
-import { apiRequest } from '../../api/actions'
+import { apiActions } from 'zc-core'
 ...
 const mapDispatchToProps = dispatch => ({
   ...
-  fetchWeather: () => dispatch(apiRequest('getWeather', { locationId: selectLocationId })),
+  fetchWeather: () => dispatch(apiActions.apiRequest('getWeather', { locationId: selectLocationId })),
 })
 ```
 
@@ -95,11 +95,13 @@ The key difference in `apiRequest` saga when called directly is that any errors 
 This logic hangs off of the action type triggering the worker i.e. `REQUEST` when using the action creator and `undefined` if called directly like this:
 
 ```
+import { apiSagas } from 'zc-core'
+...
 export const fetchDevices = () => {
   function* worker() {
     const endpoint = 'getDevices'
     try {
-      const response = yield call(apiRequest().worker, { meta: { endpoint } })
+      const response = yield call(apiSagas.apiRequest, { meta: { endpoint } })
       yield put(actions.receiveDevices(response))
     } catch (error) {
       const processedError = yield call(processError, error)
@@ -117,7 +119,8 @@ export const fetchDevices = () => {
 No matter what method used the api state and response will be stored at `state.api.{ endpoint, params }`. The `api/selectors` include parameterised selectors that simplify selecting the data for a specific request. They require the `endpoint` (and `params` if used) to be passed as props e.g.
 
 ```
-import { selectRequestPending, selectRequestResponse, selectRequestFailed } from '../api/selectors'
+import { apiSelectors } from 'zc-core'
+const { selectRequestPending, selectRequestResponse, selectRequestFailed } = apiSelectors
 ...
 const mapStateToProps = state => ({
   fetching: selectRequestPending(state, { endpoint: 'getBrands' }),
@@ -128,11 +131,11 @@ const mapStateToProps = state => ({
 ### Polling
 Polling an endpoint is as simple as dispatching a `POLL_REQUEST` action with the `endpoint` and `interval` specified in the `meta`. Or using the `pollApiRequest` action creator..
 ```
-import { pollApiRequest, stopPollApiRequest } from '../api/actions'
+import { apiActions } from 'zc-core'
 ...
 const mapDispatchToProps = dispatch => ({
-  pollDevices: () => dispatch(stopPollApiRequest('getDevices')),
-  stopPolling: () => dispatch(pollApiRequest('getDevices', null, null, AppSettings.dataUpdateFrequency)),
+  pollDevices: () => dispatch(apiActions.stopPollApiRequest('getDevices')),
+  stopPolling: () => dispatch(apiActions.pollApiRequest('getDevices', null, null, AppSettings.dataUpdateFrequency)),
 })
 ```
 This will set the `polling` value in the state for that request (state.{ endpoint: getDevices }.polling) and trigger a pollRequest saga until `STOP_POLL_REQUEST` or `REQUEST_FAILED` is dispatched (with matching endpoint in meta)

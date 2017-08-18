@@ -6,6 +6,7 @@ import {
  RESET_PASSWORD_CLOSE, RESET_PASSWORD_ERROR,
  SET_USER_GROUPS, RESET_AUTH_API,
 } from './constants'
+import { transformError } from './utils'
 
 const apiState = {
   initial: {
@@ -83,7 +84,7 @@ function authReducer(state = _initialState, action) {
     case LOGIN_FAILURE:
       return state
         .set('authAPIState', fromJS(apiState.error))
-        .set('error', fromJS(action.error))
+        .set('error', fromJS(transformError(action.error)))
 
     case SET_USER_GROUPS:
       return state
@@ -100,7 +101,7 @@ function authReducer(state = _initialState, action) {
     case REGISTER_USER_ERROR:
       return state
         .set('registrationAPIState', fromJS(apiState.error))
-        .set('error', fromJS(action.error))
+        .set('error', fromJS(transformError(action.error)))
 
     case RESET_PASSWORD:
       return state
@@ -117,7 +118,7 @@ function authReducer(state = _initialState, action) {
     case RESET_PASSWORD_ERROR:
       return state
         .set('resetPasswordAPIState', fromJS(apiState.error))
-        .set('error', fromJS(action.error))
+        .set('error', fromJS(transformError(action.error)))
 
     default:
       return state

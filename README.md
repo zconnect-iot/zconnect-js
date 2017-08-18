@@ -120,11 +120,11 @@ Could be hard coded inside the module if not likely to vary across apps
 
 ### Auth
 
-[README](./auth/README.md)
+[README](./src/auth/README.md)
 
 ### API
 
-[README](./api/README.md)
+[README](./src/api/README.md)
 
 ## Developing
 

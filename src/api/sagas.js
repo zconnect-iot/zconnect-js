@@ -8,20 +8,25 @@ import { apifetch } from './utils'
 import { logout } from '../auth/actions'
 
 export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints }, refreshJWT) {
+  function* secureApiSagaNoLogout(...args) {
+    const token = yield call(jwtStore.get)
+    return yield call(apifetch, baseURL, ...args, token.password)
+  }
+
   function* secureApiSaga(...args) {
     let token = ''
     try {
       token = yield call(jwtStore.get)
-      const response = yield apifetch(baseURL, ...args, token = token.password)
+       // if token undefined next line will be a reference error
+      const response = yield call(apifetch, baseURL, ...args, token.password)
       return response
     }
     catch (error) {
-      if (!token || error.response.status === 401 || error.response.status === 403) {
+      const status = error.response && error.response.status
+      if (!token || status === 401 || status === 403) {
         try {  // First try to get a new token and reperform request.
-          yield* call(refreshJWT)
-          token = yield call(jwtStore.get)
-          const response = yield apifetch(baseURL, ...args, token.password)
-          return response
+          yield call(refreshJWT)
+          return yield* secureApiSagaNoLogout(...args)
         }
         catch (jwterr) {
           Sentry.captureMessage('Could not perform request after re-fetching JWT')
@@ -30,13 +35,6 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
       }
       throw error
     }
-  }
-
-  function* secureApiSagaNoLogout(...args) {
-    let token = ''
-    token = yield call(jwtStore.get)
-    const response = yield apifetch(baseURL, ...args, token = token.password)
-    return response
   }
 
   function formatUrl(url, params = {}) {

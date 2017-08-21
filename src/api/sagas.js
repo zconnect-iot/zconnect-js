@@ -4,7 +4,7 @@ import { put, call, select } from 'redux-saga/effects'
 import { requestFetching, requestFetched, requestFailed, requestCacheUsed, stopPollApiRequest } from './actions'
 import { REQUEST, POLL_REQUEST, STOP_POLL_REQUEST } from './constants'
 import { selectRequestPollingInterval, selectTimeSinceLastFetch, selectRequestResponse } from './selectors'
-import { apifetch } from './utils'
+import { apifetch, formatUrl } from './utils'
 import { logout } from '../auth/actions'
 
 export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints }, refreshJWT) {
@@ -37,18 +37,8 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     }
   }
 
-  function formatUrl(url, params = {}) {
-    const used = {}
-    const formattedUrl = url.replace(/\$\{([a-zA-Z0-9_]*)\}/g, (match, param) => {
-      if (!params[param]) throw new Error(`Required parameter, ${param}, has not been provied`)
-      used[param] = true
-      return params[param]
-    })
-    const queryString = Object.entries(params)
-      .filter(param => !used[param[0]])
-      .map(param => `${param[0]}=${param[1]}`)
-      .join('&')
-    return queryString ? `${formattedUrl}?${queryString}` : formattedUrl
+  function* insecureApiSaga(...args) {
+    return yield call(apifetch, baseURL, ...args)
   }
 
   // If param is a selector yield select(it) otherwise return the supplied value
@@ -61,25 +51,35 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     return p
   }
 
-  function* apiRequest({ meta, payload = {} }) {
+  function* apiRequest(action) {
+    const { meta, payload = {}, type } = action
     const { endpoint } = meta
     const config = endpoints[endpoint]
     const params = yield call(processParams, meta.params)
-    const cacheAge = yield select(selectTimeSinceLastFetch, { endpoint, params })
-    if (cacheAge && cacheAge < config.cache) {
-      yield put(requestCacheUsed(endpoint, params))
-      return yield select(selectRequestResponse, { endpoint, params })
+    if (config.cache) {
+      const cacheAge = yield select(selectTimeSinceLastFetch, { endpoint, params })
+      if (cacheAge && cacheAge < config.cache) {
+        yield put(requestCacheUsed(endpoint, params))
+        return yield select(selectRequestResponse, { endpoint, params })
+      }
     }
-    const url = formatUrl(config.url, params)
+    const url = yield call(formatUrl, config.url, params)
     yield put(requestFetching(endpoint, params))
     try {
-      const response = yield call(secureApiSaga, url, config.method, payload)
+      const response = yield call(
+        config.token ? secureApiSaga : insecureApiSaga,
+        url,
+        config.method,
+        payload,
+      )
       yield put(requestFetched(endpoint, params, response))
       return response
     }
     catch (e) {
       yield put(requestFailed(endpoint, params, e))
-      throw e
+      // No action type indicates saga was called directly so errors should be handled
+      // by caller. Otherwise errors should be swallowed (after dispatching REQUEST_FAILED)
+      if (!type) throw e
     }
   }
 
@@ -112,6 +112,8 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   return {
     secureApiSaga,
     secureApiSagaNoLogout,
+    insecureApiSaga,
+    processParams, // Only exposed for testing
     apiRequest,
     apiPoll,
     watcher,

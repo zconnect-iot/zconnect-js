@@ -1,7 +1,7 @@
 import { APIError } from './errors'
 import { serializeEJSON, deserializeEJSON } from './eJSON'
 
-export function getHeaders(method, token) {
+export function getHeaders(token) {
   const headers = new Headers()
   headers.append('Accept', 'application/json')
   headers.append('Content-Type', 'application/json')
@@ -9,9 +9,9 @@ export function getHeaders(method, token) {
   return headers
 }
 
-export function apifetch(baseURL, url, method = 'GET', body = {}, token = undefined, resetToken = false) {
+export function apifetch(baseURL, url, method = 'GET', body = {}, token) {
   const fullUrl = `${baseURL}${url}`
-  const headers = getHeaders(method, token, resetToken)
+  const headers = getHeaders(token)
   const details = {
     method,
     headers,
@@ -21,7 +21,6 @@ export function apifetch(baseURL, url, method = 'GET', body = {}, token = undefi
   if (method.toLowerCase() === 'post') {
     details.body = JSON.stringify(serializeEJSON(body))
   }
-  if (__DEV__) console.log(`%c ${method}: ${fullUrl}`, 'background: lightblue', details.body)
   return fetch(fullUrl, details)
     .then((response) => {
       if (response.json) {
@@ -35,14 +34,6 @@ export function apifetch(baseURL, url, method = 'GET', body = {}, token = undefi
       }
       else if (!response.ok) throw new APIError(response)
       return {}
-    })
-    .then((data) => {
-      if (__DEV__) console.log(`%c ${method}: ${url} Response:`, 'background: chartreuse', data)
-      return data
-    })
-    .catch((e) => {
-      if (__DEV__) console.log(`%c ${method}: ${url} Error:`, 'background: indianred', e)
-      throw e
     })
 }
 

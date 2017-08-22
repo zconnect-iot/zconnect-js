@@ -1,11 +1,9 @@
 import { delay } from 'redux-saga'
 import { call, put, select } from 'redux-saga/effects'
-import sinon from 'sinon'
 
-import { expect } from '../../../../test'
-import { selectRequestPollingInterval } from '../../selectors'
-import { stopPollApiRequest } from '../../actions'
-import configureApiSagas from '../../sagas'
+import { selectRequestPollingInterval } from '../selectors'
+import { stopPollApiRequest } from '../actions'
+import configureApiSagas from '../sagas'
 
 
 const refreshJWT = sinon.stub()

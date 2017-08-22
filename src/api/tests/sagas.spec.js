@@ -1,9 +1,7 @@
 import { call, put, select } from 'redux-saga/effects'
-import sinon from 'sinon'
 
 import { logout } from '../../auth/actions'
 
-import { expect } from '../../../test'
 import { apifetch, formatUrl } from '../utils'
 import { requestFetching, requestFailed, requestFetched, requestCacheUsed } from '../actions'
 import { selectTimeSinceLastFetch, selectRequestResponse } from '../selectors'

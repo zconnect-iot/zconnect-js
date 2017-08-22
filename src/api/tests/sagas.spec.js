@@ -1,18 +1,14 @@
-import chai from 'chai'
-import sinon from 'sinon'
-import sinonChai from 'sinon-chai'
 import { call, put, select } from 'redux-saga/effects'
+import sinon from 'sinon'
 
+import { logout } from '../../auth/actions'
+
+import { expect } from '../../../test'
 import { apifetch, formatUrl } from '../utils'
 import { requestFetching, requestFailed, requestFetched, requestCacheUsed } from '../actions'
 import { selectTimeSinceLastFetch, selectRequestResponse } from '../selectors'
-import { logout } from '../../auth/actions'
 import configureApiSagas from '../sagas'
-
-// Move to global test config
-chai.use(sinonChai)
-chai.expect()
-const expect = chai.expect
+import * as C from '../constants'
 
 const refreshJWT = sinon.stub()
 const deps = {
@@ -327,8 +323,22 @@ describe('API Sagas', () => {
           .to.throw(apiError)
       })
 
+      it('should throw any errors if saga triggered by POLL_REQUEST', () => {
+        const saga = apiRequest(makeAction({ type: C.POLL_REQUEST, endpoint: 'secureGet' }))
+        const processedParams = Symbol()
+        const formattedUrl = Symbol()
+        const apiError = new Error('Server 404')
+        saga.next()
+        saga.next(processedParams)
+        saga.next(formattedUrl)
+        saga.next()
+        saga.throw(apiError)
+        expect(() => saga.next())
+          .to.throw(apiError)
+      })
+
       it('should swallow any errors if saga triggered by REQUEST action', () => {
-        const saga = apiRequest(makeAction({ type: 'REQUEST', endpoint: 'secureGet' }))
+        const saga = apiRequest(makeAction({ type: C.REQUEST, endpoint: 'secureGet' }))
         const processedParams = Symbol()
         const formattedUrl = Symbol()
         const apiError = new Error('Server 404')

@@ -2,7 +2,7 @@ import { takeEvery, delay } from 'redux-saga'
 import { put, call, select } from 'redux-saga/effects'
 
 import { requestFetching, requestFetched, requestFailed, requestCacheUsed, stopPollApiRequest } from './actions'
-import { REQUEST, POLL_REQUEST, STOP_POLL_REQUEST } from './constants'
+import { REQUEST, POLL_REQUEST } from './constants'
 import { selectRequestPollingInterval, selectTimeSinceLastFetch, selectRequestResponse } from './selectors'
 import { apifetch, formatUrl } from './utils'
 import { logout } from '../auth/actions'
@@ -79,32 +79,30 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
       yield put(requestFailed(endpoint, params, e))
       // No action type indicates saga was called directly so errors should be handled
       // by caller. Otherwise errors should be swallowed (after dispatching REQUEST_FAILED)
-      if (!type) throw e
+      if (!type || type === POLL_REQUEST) throw e
     }
   }
 
   function* apiPoll(action) {
-    if (action.type === STOP_POLL_REQUEST) return
     const { endpoint, params } = action.meta
-    let interval = select(selectRequestPollingInterval, { endpoint, params })
+    let interval = action.meta.interval
     while (interval) {
       try {
-        yield call(apiRequest().worker, action)
+        yield call(apiRequest, action)
+        yield call(delay, interval)
+        interval = yield select(selectRequestPollingInterval, { endpoint, params })
       }
       catch (e) {
-        // The polling key in the request state will be set to false by the REQUEST_FAILED action
-        // but this just adds a STOP_POLL_REQUEST to the redux history to aid debugging
         yield put(stopPollApiRequest(endpoint, params))
-        console.warn(`Polling endpoint, ${action.meta.endpoint}, returned an error. Polling will be stopped.`)
+        interval = false
+        Sentry.captureMessage(`Polling endpoint, ${action.meta.endpoint}, returned an error. Polling will be stopped.`)
       }
-      interval = yield select(selectRequestPollingInterval, { endpoint, params })
-      yield call(delay, interval)
     }
   }
 
   function* watcher() {
     yield [
-      takeEvery([POLL_REQUEST, STOP_POLL_REQUEST], apiPoll),
+      takeEvery(POLL_REQUEST, apiPoll),
       takeEvery(REQUEST, apiRequest),
     ]
   }

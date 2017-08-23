@@ -20,12 +20,10 @@ import { Sentry } from 'react-native-sentry'
 
 import AppSettings from './config/AppSettings'
 import endpoints from './config/endpoints'
-import processError from './errors'
 import jwtStore from './jwtStore'
 
 configure({
   Sentry,
-  processError,
   jwtStore,
   endpoints,
   baseURL: AppSettings.baseURL,
@@ -98,11 +96,7 @@ export default {
 
 ### Sentry
 
-Needed for setting user context on log in and capturing messages.
-
-### processError
-
-Currently this is needed to filter out exceptions like `404` on login but might be simpler if this was handled by configuring a proxy for `Sentry` above and just using that to do everything
+Needed for setting user context on log in and capturing messages and exceptions. Can be a proxied version of the actual Sentry object as long as it provides setUserContext, captureMessage and captureException methods.
 
 ### endpoints
 

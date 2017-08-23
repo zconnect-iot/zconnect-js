@@ -14,13 +14,13 @@ import {
   REFRESH_JWT,
 } from './constants'
 
-export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTimeout, processError }) {
+export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTimeout }) {
   function* logoutSaga() {
     try {
       yield call(jwtStore.delete)
     }
     catch (error) {
-      yield call(processError, error)
+      Sentry.captureException(error)
     }
     // Remove user details from sentry
     Sentry.setUserContext({ email: '', userID: '', username: '', extra: {} })
@@ -56,7 +56,7 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
       yield put(actions.setUserGroups(userGroups))
     }
     catch (error) {
-      yield call(processError, error)
+      yield call(Sentry.captureException, error)
     }
   }
 
@@ -88,8 +88,8 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
       yield put(actions.loginUserState(userID, email))
     }
     catch (err) {
-      const processedError = yield call(processError, err)
-      yield put(actions.loginFailure(processedError))
+      Sentry.captureException(err)
+      yield put(actions.loginFailure(err))
     }
   }
 
@@ -111,8 +111,8 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
       yield put(actions.registerUserSuccess())
     }
     catch (error) {
-      const processedError = yield call(processError, error)
-      yield put(actions.registerUserError(processedError))
+      Sentry.captureException(error)
+      yield put(actions.registerUserError(error))
     }
   }
 
@@ -130,8 +130,8 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
       yield put(actions.resetPasswordSuccess())
     }
     catch (error) {
-      const processedError = yield call(processError, error)
-      yield put(actions.resetPasswordError(processedError))
+      Sentry.captureException(error)
+      yield put(actions.resetPasswordError(error))
     }
   }
 

@@ -104,9 +104,8 @@ export const fetchDevices = () => {
       const response = yield call(apiSagas.apiRequest, { meta: { endpoint } })
       yield put(actions.receiveDevices(response))
     } catch (error) {
-      const processedError = yield call(processError, error)
       yield put(actions.deviceFetchError())
-      if (processedError.status && processedError.status === 404) {
+      if (error.response && error.response.status === 404) {
         ...
       }
     }

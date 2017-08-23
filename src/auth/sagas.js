@@ -2,7 +2,7 @@ import { call, put, race } from 'redux-saga/effects'
 import { takeLatest, delay } from 'redux-saga'
 import jwtDecode from 'jwt-decode'
 
-import { apifetch, secureApiSagaNoLogout } from '../api/utils'
+import { apifetch } from '../api/utils'
 import { deserializeEJSON } from '../api/eJSON'
 
 import * as actions from './actions'
@@ -30,18 +30,17 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
   * refreshJWT
   * Allows a user to get a new JWT token to extend their logged in period.
   * The endpoint returns a JSON Web Token on success.
-  * NB: Need explicit try catch around this when calling directly.
   */
   function* refreshJWT() {
     const url = 'api/v1/users/refresh_token'
     try {
+      const oldToken = yield call(jwtStore.get)
       const { response, timeout } = yield race({
-        response: call(secureApiSagaNoLogout, url, 'GET', {}),
+        response: call(apifetch, baseURL, url, 'GET', {}, oldToken.password),
         timeout: call(delay, loginTimeout),
       })
       if (timeout) throw new Error('timeout')
 
-      const oldToken = yield call(jwtStore.get)
       const email = oldToken.username
 
       // Securely store login token

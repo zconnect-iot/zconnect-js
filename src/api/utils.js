@@ -40,7 +40,7 @@ export function apifetch(baseURL, url, method = 'GET', body = {}, token) {
 export function formatUrl(url, params = {}) {
   const used = {}
   const formattedUrl = url.replace(/\$\{([a-zA-Z0-9_]*)\}/g, (match, param) => {
-    if (!params[param]) throw new Error(`Required parameter, ${param}, has not been provied`)
+    if (!params[param]) throw new Error(`Required parameter, ${param}, has not been provided`)
     used[param] = true
     return params[param]
   })

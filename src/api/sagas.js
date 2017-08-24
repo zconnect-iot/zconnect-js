@@ -1,5 +1,5 @@
-import { takeEvery, delay, race } from 'redux-saga'
-import { put, call, select } from 'redux-saga/effects'
+import { takeEvery, delay } from 'redux-saga'
+import { put, call, select, race } from 'redux-saga/effects'
 
 import { requestFetching, requestFetched, requestFailed, requestCacheUsed, stopPollApiRequest } from './actions'
 import { REQUEST, POLL_REQUEST, FETCH_TIMEOUT } from './constants'

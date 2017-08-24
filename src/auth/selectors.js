@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect'
+import { Map } from 'immutable'
 
 const PREMIUM_USER_GROUP = 'premium_user'
 
@@ -36,7 +37,7 @@ export const selectResetPasswordAPIState = createSelector(
 
 export const selectError = createSelector(
   selectAuthDomain,
-  substate => substate.get('error'),
+  substate => substate.get('error', Map()),
 )
 
 export const selectErrorJsonTitle = createSelector(

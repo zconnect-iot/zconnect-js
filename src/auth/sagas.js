@@ -126,7 +126,7 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
 
       const body = { email }
 
-      yield apifetch(url, method, body)
+      yield apifetch(baseURL, url, method, body)
       yield put(actions.resetPasswordSuccess())
     }
     catch (error) {

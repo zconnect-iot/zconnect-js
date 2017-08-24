@@ -44,6 +44,8 @@ const apiSagas = configureApiSagas(deps, refreshJWT)
 
 describe('API Sagas', () => {
 
+  const { secureFetch, fetchSaga, secureApiSaga, apiRequest, processParams, insecureFetch } = apiSagas
+
   describe('configureApiSagas()', () => {
     it('should return an object', () => {
       expect(apiSagas).to.be.an('object')
@@ -56,25 +58,25 @@ describe('API Sagas', () => {
     })
   })
 
-  describe('secureApiSagaNoLogout', () => {
-    const { secureApiSagaNoLogout } = apiSagas
+  describe('secureFetch', () => {
+
     const args = ['arg1', 'arg2', 'arg3']
 
     it('should call jwtStore.get for the jwt token', () => {
-      const saga = secureApiSagaNoLogout(...args)
+      const saga = secureFetch(...args)
       expect(saga.next().value).to.be.deep.equal(call(deps.jwtStore.get))
     })
 
-    it('should call apiFetch with baseURL, args passed and the token', () => {
-      const saga = secureApiSagaNoLogout(...args)
+    it('should call fetchSaga with args passed and the token', () => {
+      const saga = secureFetch(...args)
       const password = Symbol()
       saga.next()
       expect(saga.next({ password }).value)
-        .to.be.deep.equal(call(apifetch, deps.baseURL, ...args, password))
+        .to.be.deep.equal(call(fetchSaga, ...args, password))
     })
 
     it('should return the result of fetch (if successful)', () => {
-      const saga = secureApiSagaNoLogout(...args)
+      const saga = secureFetch(...args)
       const password = Symbol()
       const response = { some: { data: Symbol() }}
       saga.next()
@@ -84,7 +86,7 @@ describe('API Sagas', () => {
     })
 
     it('should throw any errors', () => {
-      const saga = secureApiSagaNoLogout(...args)
+      const saga = secureFetch(...args)
       const password = Symbol()
       const apiError = new Error('Server 404')
       apiError.response = {
@@ -100,7 +102,6 @@ describe('API Sagas', () => {
 
   describe('secureApiSaga', () => {
 
-    const { secureApiSaga } = apiSagas
     const args = ['api/v1/test', 'GET', {}]
 
     it('should call jwtStore.get for the jwt token', () => {
@@ -108,12 +109,11 @@ describe('API Sagas', () => {
       expect(saga.next().value).to.be.deep.equal(call(deps.jwtStore.get))
     })
 
-    it('should call apiFetch with baseURL, args passed and the token', () => {
+    it('should call secureFetch with args passed', () => {
       const saga = secureApiSaga(...args)
-      const password = Symbol()
       saga.next()
-      expect(saga.next({ password }).value)
-        .to.be.deep.equal(call(apifetch, deps.baseURL, ...args, password))
+      expect(saga.next().value)
+        .to.be.deep.equal(call(secureFetch, ...args))
     })
 
     it('should return the result of fetch (if successful)', () => {
@@ -142,14 +142,10 @@ describe('API Sagas', () => {
     describe('no token or server response 401 or 403', () => {
       it('should call refresh token saga and repeat request if no token stored', () => {
         const saga = secureApiSaga(...args)
-        const password = Symbol()
         saga.next()
-        expect(saga.next().value) // No JWT token stored
+        saga.next()  // No JWT token returned by get
+        expect(saga.throw(new Error("Can't find property 'password' of undefined (Or something)")).value)
           .to.be.deep.equal(call(refreshJWT))
-        expect(saga.next().value)
-          .to.be.deep.equal(call(deps.jwtStore.get))
-        expect(saga.next({ password }).value) // Now JWT is defined post refresh
-          .to.be.deep.equal(call(apifetch, deps.baseURL, ...args, password))
       })
 
       it('should call refresh token saga and repeat request on 401', () => {
@@ -164,9 +160,7 @@ describe('API Sagas', () => {
         expect(saga.throw(apiError).value)
           .to.be.deep.equal(call(refreshJWT))
         expect(saga.next().value)
-          .to.be.deep.equal(call(deps.jwtStore.get))
-        expect(saga.next({ password }).value)
-          .to.be.deep.equal(call(apifetch, deps.baseURL, ...args, password))
+          .to.be.deep.equal(call(secureFetch, ...args))
       })
 
       it('should capture message and logout if fetch fails on second attempt', () => {
@@ -180,7 +174,6 @@ describe('API Sagas', () => {
         saga.next({ password })
         saga.throw(apiError)
         saga.next()
-        saga.next({ password })
         expect(saga.throw(apiError).value)
           .to.be.deep.equal(put(logout()))
         expect(deps.Sentry.captureMessage).to.have.been.calledWith()
@@ -189,7 +182,6 @@ describe('API Sagas', () => {
   })
 
   describe('processParams', () => {
-    const { processParams } = apiSagas
 
     it('returns non selector values as defined in the input', () => {
       const params = { a: 1, b: 2, c: 3 }
@@ -207,7 +199,7 @@ describe('API Sagas', () => {
   })
 
   describe('apiRequest', () => {
-    const { apiRequest, processParams, secureApiSaga, insecureApiSaga } = apiSagas
+
     const makeAction = ({
       params = {},
       endpoint = 'getDevices',
@@ -260,7 +252,7 @@ describe('API Sagas', () => {
         saga.next()
         saga.next(formattedUrl)
         expect(saga.next().value)
-          .to.be.deep.equal(call(insecureApiSaga, formattedUrl, 'POST', {}))
+          .to.be.deep.equal(call(insecureFetch, formattedUrl, 'POST', {}))
       })
     })
 

@@ -1,16 +1,25 @@
-import { takeEvery, delay } from 'redux-saga'
+import { takeEvery, delay, race } from 'redux-saga'
 import { put, call, select } from 'redux-saga/effects'
 
 import { requestFetching, requestFetched, requestFailed, requestCacheUsed, stopPollApiRequest } from './actions'
-import { REQUEST, POLL_REQUEST } from './constants'
+import { REQUEST, POLL_REQUEST, FETCH_TIMEOUT } from './constants'
 import { selectRequestPollingInterval, selectTimeSinceLastFetch, selectRequestResponse } from './selectors'
 import { apifetch, formatUrl } from './utils'
 import { logout } from '../auth/actions'
 
 export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints }, refreshJWT) {
-  function* secureApiSagaNoLogout(...args) {
+  function* fetchSaga(...args) {
+    const { response, timeout } = yield race({
+      response: call(apifetch, baseURL, ...args),
+      timeout: call(delay, FETCH_TIMEOUT),
+    })
+    if (timeout) throw new Error('API request timed out')
+    return response
+  }
+
+  function* secureFetch(...args) {
     const token = yield call(jwtStore.get)
-    return yield call(apifetch, baseURL, ...args, token.password)
+    return yield call(fetchSaga, ...args, token.password)
   }
 
   function* secureApiSaga(...args) {
@@ -18,15 +27,14 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     try {
       token = yield call(jwtStore.get)
        // if token undefined next line will be a reference error
-      const response = yield call(apifetch, baseURL, ...args, token.password)
-      return response
+      return yield call(secureFetch, ...args)
     }
     catch (error) {
       const status = error.response && error.response.status
       if (!token || status === 401 || status === 403) {
         try {  // First try to get a new token and reperform request.
           yield call(refreshJWT)
-          return yield* secureApiSagaNoLogout(...args)
+          return yield call(secureFetch, ...args)
         }
         catch (jwterr) {
           Sentry.captureMessage('Could not perform request after re-fetching JWT')
@@ -37,8 +45,8 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     }
   }
 
-  function* insecureApiSaga(...args) {
-    return yield call(apifetch, baseURL, ...args)
+  function* insecureFetch(...args) {
+    return yield call(fetchSaga, ...args)
   }
 
   // If param is a selector yield select(it) otherwise return the supplied value
@@ -67,7 +75,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     yield put(requestFetching(endpoint, params))
     try {
       const response = yield call(
-        config.token ? secureApiSaga : insecureApiSaga,
+        config.token ? secureApiSaga : insecureFetch,
         url,
         config.method,
         payload,
@@ -109,8 +117,9 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
 
   return {
     secureApiSaga,
-    secureApiSagaNoLogout,
-    insecureApiSaga,
+    fetchSaga,
+    secureFetch,
+    insecureFetch,
     processParams, // Only exposed for testing
     apiRequest,
     apiPoll,

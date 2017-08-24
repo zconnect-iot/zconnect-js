@@ -6,3 +6,5 @@ export const REQUEST_CACHE_USED = 'app/api/REQUEST_CACHE_USED'
 
 export const POLL_REQUEST = 'app/api/POLL_REQUEST'
 export const STOP_POLL_REQUEST = 'app/api/STOP_POLL_REQUEST'
+
+export const FETCH_TIMEOUT = 10000

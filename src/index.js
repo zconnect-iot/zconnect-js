@@ -13,7 +13,7 @@ import configureAuthSagas from './auth/sagas'
 let apiSagas = {}
 let authSagas = {}
 
-export function configure(appDependencies) {
+export function configureZC(appDependencies) {
   authSagas = configureAuthSagas(appDependencies)
   apiSagas = configureApiSagas(appDependencies, authSagas.refreshJWT)
 }

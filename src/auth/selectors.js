@@ -40,6 +40,16 @@ export const selectError = createSelector(
   substate => substate.get('error', Map()),
 )
 
+export const selectErrorTitle = createSelector(
+  selectError,
+  error => error.get('title'),
+)
+
+export const selectErrorDescription = createSelector(
+  selectError,
+  error => error.get('description'),
+)
+
 export const selectErrorJsonTitle = createSelector(
   selectError,
   error => error.getIn(['response', 'json', 'title']),
@@ -53,17 +63,6 @@ export const selectErrorJsonDescription = createSelector(
 export const selectErrorStatus = createSelector(
   selectError,
   error => error.getIn(['response', 'status']),
-)
-
-export const selectErrorDetails = createSelector(
-  selectErrorStatus,
-  selectErrorJsonTitle,
-  selectErrorJsonDescription,
-  (status, title, description) => {
-    if (status && (status === 404 || status === 403)) return 'LoginForm.invalid'
-    if (description && description === 'User has not confirmed their email') return 'LoginForm.emailconfirm'
-    return 'Error.tryagain'
-  },
 )
 
 export const selectUserLoggedIn = createSelector(

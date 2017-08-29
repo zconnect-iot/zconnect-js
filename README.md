@@ -11,7 +11,7 @@
 
 #### Configure with app dependencies
 
-Run `configure` passing all the required dependencies as an object. This must be done at or near entry point of the app, before the store is created or the sagas required there will not be defined. This can all be done in an initialisation file which is simply imported at the entry point e.g.
+Run `configureZC` passing all the required dependencies as an object. This must be done at or near entry point of the app, before the store is created or the sagas required there will not be defined. This can all be done in an initialisation file which is simply imported at the entry point e.g.
 
 ```
 // initialiseCore.js

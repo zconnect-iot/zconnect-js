@@ -10,7 +10,7 @@ export function getHeaders(token) {
 }
 
 export function apifetch(baseURL, url, method = 'GET', body = {}, token) {
-  const fullUrl = `${baseURL}${url}`
+  const fullUrl = `${baseURL}/${url}`
   const headers = getHeaders(token)
   const details = {
     method,

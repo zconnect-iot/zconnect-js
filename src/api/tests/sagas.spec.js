@@ -26,7 +26,13 @@ const deps = {
       url: 'api/v1/secureGet',
       token: true,
     },
-    insecureGet: {
+    securePost: {
+      cache: 0,
+      method: 'POST',
+      url: 'api/v1/securePost',
+      token: true,
+    },
+    insecurePost: {
       cache: 0,
       method: 'POST',
       url: 'api/v1/secureGet',
@@ -44,7 +50,7 @@ const apiSagas = configureApiSagas(deps, refreshJWT)
 
 describe('API Sagas', () => {
 
-  const { secureFetch, fetchSaga, secureApiSaga, apiRequest, processParams, insecureFetch } = apiSagas
+  const { secureFetch, fetchSaga, secureApiSaga, apiRequest, processParams, processPayload, insecureFetch } = apiSagas
 
   describe('configureApiSagas()', () => {
     it('should return an object', () => {
@@ -198,6 +204,23 @@ describe('API Sagas', () => {
     })
   })
 
+  describe('processPayload', () => {
+
+    it('returns non selector values as defined in the input', () => {
+      const params = { a: 1, b: 2, c: 3 }
+      const saga = processPayload(params)
+      expect(saga.next().value).to.deep.equal(params)
+    })
+
+    it("yield selects all params that are of type 'function', replacing with resulting value", () => {
+      const params = { a: 1, b: () => {}, c: 3}
+      const selectB = Symbol()
+      const saga = processPayload(params)
+      expect(saga.next().value).to.deep.equal(select(params.b))
+      expect(saga.next(selectB).value).to.deep.equal({ a: 1, b: selectB, c: 3 })
+    })
+  })
+
   describe('apiRequest', () => {
 
     const makeAction = ({
@@ -213,12 +236,20 @@ describe('API Sagas', () => {
       expect(saga.next().value).to.deep.equal(call(processParams, {}))
     })
 
+    it('should call processPayload to yield select any selector params passed', () => {
+      const action = makeAction({ endpoint: 'securePost' })
+      const saga = apiRequest(action)
+      saga.next()
+      expect(saga.next().value).to.deep.equal(call(processPayload, {}))
+    })
+
     it('should call formatUrl to convert processed params object into string', () => {
       const action = makeAction({ endpoint: 'secureGet' })
       const saga = apiRequest(action)
       const processedParams = Symbol()
       saga.next()
-      expect(saga.next(processedParams).value)
+      saga.next(processedParams)
+      expect(saga.next().value)
         .to.be.deep.equal(call(formatUrl, deps.endpoints.secureGet.url, processedParams))
     })
 
@@ -231,6 +262,7 @@ describe('API Sagas', () => {
         const formattedUrl = Symbol()
         saga.next()
         saga.next(processedParams)
+        saga.next()
         expect(saga.next(formattedUrl).value)
           .to.be.deep.equal(put(requestFetching('secureGet', processedParams)))
       })
@@ -240,16 +272,18 @@ describe('API Sagas', () => {
         const formattedUrl = Symbol()
         saga.next()
         saga.next()
+        saga.next({})
         saga.next(formattedUrl)
         expect(saga.next().value)
           .to.be.deep.equal(call(secureApiSaga, formattedUrl, 'GET', {}))
       })
 
       it('should call insecureApiSaga if config.token is false', () => {
-        const saga = apiRequest(makeAction({ endpoint: 'insecureGet' }))
+        const saga = apiRequest(makeAction({ endpoint: 'insecurePost' }))
         const formattedUrl = Symbol()
         saga.next()
         saga.next()
+        saga.next({})
         saga.next(formattedUrl)
         expect(saga.next().value)
           .to.be.deep.equal(call(insecureFetch, formattedUrl, 'POST', {}))
@@ -264,6 +298,7 @@ describe('API Sagas', () => {
         const response = { some: { server: 'response' }}
         saga.next()
         saga.next(processedParams)
+        saga.next()
         saga.next(formattedUrl)
         saga.next()
         expect(saga.next(response).value)
@@ -277,6 +312,7 @@ describe('API Sagas', () => {
         const response = { some: { server: 'response' }}
         saga.next()
         saga.next(processedParams)
+        saga.next()
         saga.next(formattedUrl)
         saga.next()
         saga.next(response)
@@ -293,6 +329,7 @@ describe('API Sagas', () => {
         const apiError = new Error('Server 404')
         saga.next()
         saga.next(processedParams)
+        saga.next()
         saga.next(formattedUrl)
         saga.next()
         expect(saga.throw(apiError).value)
@@ -306,6 +343,7 @@ describe('API Sagas', () => {
         const apiError = new Error('Server 404')
         saga.next()
         saga.next(processedParams)
+        saga.next()
         saga.next(formattedUrl)
         saga.next()
         saga.throw(apiError)
@@ -320,6 +358,7 @@ describe('API Sagas', () => {
         const apiError = new Error('Server 404')
         saga.next()
         saga.next(processedParams)
+        saga.next()
         saga.next(formattedUrl)
         saga.next()
         saga.throw(apiError)
@@ -334,6 +373,7 @@ describe('API Sagas', () => {
         const apiError = new Error('Server 404')
         saga.next()
         saga.next(processedParams)
+        saga.next()
         saga.next(formattedUrl)
         saga.next()
         saga.throw(apiError)
@@ -348,7 +388,8 @@ describe('API Sagas', () => {
         const saga = apiRequest(makeAction({ endpoint }))
         const processedParams = Symbol()
         saga.next()
-        expect(saga.next(processedParams).value)
+        saga.next(processedParams)
+        expect(saga.next().value)
           .to.be.deep.equal(select(selectTimeSinceLastFetch, { endpoint, params: processedParams }))
       })
 
@@ -360,6 +401,7 @@ describe('API Sagas', () => {
         const timeSinceLastFetch = 9999
         saga.next()
         saga.next(processedParams)
+        saga.next()
         saga.next(timeSinceLastFetch)
         expect(saga.next().value)
           .to.be.deep.equal(select(selectRequestResponse, { endpoint, params: processedParams }))

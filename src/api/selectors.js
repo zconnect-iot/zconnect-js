@@ -22,22 +22,22 @@ const selectRequestDomain = createSelector(
 
 export const selectRequestFetched = createSelector(
   selectRequestDomain,
-  request => request.get('success'),
+  request => request.get('success', false),
 )
 
 export const selectRequestFailed = createSelector(
   selectRequestDomain,
-  request => request.get('error'),
+  request => request.get('error', false),
 )
 
 export const selectRequestPending = createSelector(
   selectRequestDomain,
-  request => request.get('fetching'),
+  request => request.get('fetching', false),
 )
 
 export const selectRequestPollingInterval = createSelector(
   selectRequestDomain,
-  request => request.get('polling'),
+  request => request.get('polling', false),
 )
 
 export const selectLastFetchedTime = createSelector(
@@ -57,7 +57,7 @@ export const selectRequestAPIState = createSelector(
   selectRequestFailed,
   selectRequestFetched,
   selectRequestPending,
-  (failed, success, fetching) => ({ failed, success, fetching }),
+  (error, success, fetching) => ({ error, success, fetching }),
 )
 
 export const selectRequestResponse = createSelector(

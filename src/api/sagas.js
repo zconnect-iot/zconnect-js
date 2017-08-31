@@ -59,11 +59,22 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     return p
   }
 
+  function* processPayload(payload = {}) {
+    // TODO: Allow processing of nested selectors (currently only handles selectors at top level)
+    const selectors = Object.entries(payload).filter(entry => typeof entry[1] === 'function')
+    const p = { ...payload }
+    for (let i = 0; i < selectors.length; i += 1) {
+      p[selectors[i][0]] = yield select(selectors[i][1])
+    }
+    return p
+  }
+
   function* apiRequest(action) {
-    const { meta, payload = {}, type } = action
+    const { meta, type } = action
     const { endpoint } = meta
     const config = endpoints[endpoint]
     const params = yield call(processParams, meta.params)
+    const payload = yield call(processPayload, action.payload)
     if (config.cache) {
       const cacheAge = yield select(selectTimeSinceLastFetch, { endpoint, params })
       if (cacheAge && cacheAge < config.cache) {
@@ -121,6 +132,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     secureFetch,
     insecureFetch,
     processParams, // Only exposed for testing
+    processPayload,
     apiRequest,
     apiPoll,
     watcher,

@@ -1,4 +1,5 @@
 import { fromJS } from 'immutable'
+import { transformError } from '../auth/utils'
 import {
  REQUEST_FAILED, REQUEST_FETCHED, REQUEST_FETCHING, POLL_REQUEST, STOP_POLL_REQUEST,
 } from './constants'

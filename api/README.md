@@ -118,11 +118,11 @@ export const fetchDevices = () => {
 No matter what method used the api state and response will be stored at `state.api.{ endpoint, params }`. The `api/selectors` include parameterised selectors that simplify selecting the data for a specific request. They require the `endpoint` (and `params` if used) to be passed as props e.g.
 
 ```
-import { selectRequestPending, selectRequestResponse, selectRequestFailed } from 'zc-core/api/selectors'
+import { selectRequestPending, selectRequestResponse, selectRequestError } from 'zc-core/api/selectors'
 ...
 const mapStateToProps = state => ({
   fetching: selectRequestPending(state, { endpoint: 'getBrands' }),
-  failed: selectRequestFailed(state, { endpoint: 'getBrands' }),
+  failed: selectRequestError(state, { endpoint: 'getBrands' }),
   brands: selectRequestResponse(state, { endpoint: 'getBrands' }),
 })
 ```
@@ -136,4 +136,4 @@ const mapDispatchToProps = dispatch => ({
   stopPolling: () => dispatch(pollApiRequest('getDevices', null, null, AppSettings.dataUpdateFrequency)),
 })
 ```
-This will set the `polling` value in the state for that request (state.{ endpoint: getDevices }.polling) and trigger a pollRequest saga until `STOP_POLL_REQUEST` or `REQUEST_FAILED` is dispatched (with matching endpoint in meta)
+This will set the `polling` value in the state for that request (state.{ endpoint: getDevices }.polling) and trigger a pollRequest saga until `STOP_POLL_REQUEST` or `REQUEST_ERROR` is dispatched (with matching endpoint in meta)

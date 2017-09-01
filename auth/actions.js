@@ -1,11 +1,10 @@
 import {
   LOGIN_REQUEST, LOGIN_FAILURE, LOGOUT, LOGIN_USER,
   REGISTER_USER, REGISTER_USER_SUCCESS, REGISTER_USER_ERROR,
-  RESET_PASSWORD, RESET_PASSWORD_SUCCESS, RESET_PASSWORD_CLOSE,
+  RESET_PASSWORD, RESET_PASSWORD_SUCCESS,
   RESET_PASSWORD_ERROR,
   SET_USER_GROUPS,
   RESET_AUTH_API,
-  REFRESH_JWT,
 } from './constants'
 
 /*
@@ -37,9 +36,3 @@ export const registerUserError = error => ({ type: REGISTER_USER_ERROR, error })
 export const resetPassword = payload => ({ type: RESET_PASSWORD, payload })
 export const resetPasswordSuccess = () => ({ type: RESET_PASSWORD_SUCCESS })
 export const resetPasswordError = error => ({ type: RESET_PASSWORD_ERROR, error })
-
-
-/*
-* JWT refresh
-*/
-export const refreshJWT = () => ({ type: REFRESH_JWT })

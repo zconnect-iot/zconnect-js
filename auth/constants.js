@@ -14,6 +14,4 @@ export const RESET_PASSWORD_SUCCESS = 'app/auth/RESET_PASSWORD_SUCCESS'
 export const RESET_PASSWORD_CLOSE = 'app/auth/RESET_PASSWORD_CLOSE'
 export const RESET_PASSWORD_ERROR = 'app/auth/RESET_PASSWORD_ERROR'
 
-export const REFRESH_JWT = 'app/auth/REFRESH_JWT'
-
 export const RESET_AUTH_API = 'app/auth/RESET_AUTH_API'

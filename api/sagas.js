@@ -1,13 +1,16 @@
 import { takeEvery, delay } from 'redux-saga'
-import { put, call, select, race } from 'redux-saga/effects'
+import { put, call, select, race, takeLatest } from 'redux-saga/effects'
+import jwtDecode from 'jwt-decode'
 
-import { requestFetching, requestFetched, requestFailed, requestCacheUsed, stopPollApiRequest } from './actions'
-import { REQUEST, POLL_REQUEST, FETCH_TIMEOUT } from './constants'
+import { requestPending, requestSuccess, requestError, requestCacheUsed, stopPollApiRequest } from './actions'
+import { REQUEST, POLL_REQUEST, FETCH_TIMEOUT, REFRESH_JWT } from './constants'
 import { selectRequestPollingInterval, selectTimeSinceLastFetch, selectRequestResponse } from './selectors'
 import { apifetch, formatUrl } from './utils'
-import { logout } from '../auth/actions'
+import { deserializeEJSON } from './eJSON'
+import { logout, setUserGroups } from '../auth/actions'
+import authEndpoints from '../auth/endpoints'
 
-export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints }, refreshJWT) {
+export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints }) {
   function* fetchSaga(...args) {
     const { response, timeout } = yield race({
       response: call(apifetch, baseURL, ...args),
@@ -20,6 +23,31 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   function* secureFetch(...args) {
     const token = yield call(jwtStore.get)
     return yield call(fetchSaga, ...args, token.password)
+  }
+
+  function* refreshJWT() {
+    const url = 'api/v1/users/refresh_token'
+    try {
+      const oldToken = yield call(jwtStore.get)
+      const response = yield call(secureFetch, baseURL, url, 'GET')
+
+      const email = oldToken.username
+
+      // Securely store login token
+      yield call(jwtStore.set, email, response.token)
+
+      const JWTokenDecoded = deserializeEJSON(jwtDecode(response.token))
+      const userGroups = JWTokenDecoded.aud
+      const userID = JWTokenDecoded.oid.oid
+
+      // Log the user in with Sentry too
+      Sentry.setUserContext({ email, userID, username: '', extra: {} })
+
+      yield put(setUserGroups(userGroups))
+    }
+    catch (error) {
+      yield call(Sentry.captureException, error)
+    }
   }
 
   function* secureApiSaga(...args) {
@@ -72,7 +100,8 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   function* apiRequest(action) {
     const { meta, type } = action
     const { endpoint } = meta
-    const config = endpoints[endpoint]
+    const config = authEndpoints[endpoint] || endpoints[endpoint]
+    if (!config) throw new Error(`No endpoint configuration found for: ${endpoint}`)
     const params = yield call(processParams, meta.params)
     const payload = yield call(processPayload, action.payload)
     if (config.cache) {
@@ -83,7 +112,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
       }
     }
     const url = yield call(formatUrl, config.url, params)
-    yield put(requestFetching(endpoint, params))
+    yield put(requestPending(endpoint, params))
     try {
       const response = yield call(
         config.token ? secureApiSaga : insecureFetch,
@@ -91,13 +120,13 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
         config.method,
         payload,
       )
-      yield put(requestFetched(endpoint, params, response))
+      yield put(requestSuccess(endpoint, params, response))
       return response
     }
     catch (e) {
-      yield put(requestFailed(endpoint, params, e))
+      yield put(requestError(endpoint, params, e))
       // No action type indicates saga was called directly so errors should be handled
-      // by caller. Otherwise errors should be swallowed (after dispatching REQUEST_FAILED)
+      // by caller. Otherwise errors should be swallowed (after dispatching REQUEST_ERROR)
       if (!type || type === POLL_REQUEST) throw e
     }
   }
@@ -123,6 +152,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     yield [
       takeEvery(POLL_REQUEST, apiPoll),
       takeEvery(REQUEST, apiRequest),
+      takeLatest(REFRESH_JWT, refreshJWT),
     ]
   }
 
@@ -130,6 +160,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     secureApiSaga,
     fetchSaga,
     secureFetch,
+    refreshJWT,
     insecureFetch,
     processParams, // Only exposed for testing
     processPayload,

@@ -5,8 +5,8 @@ let apiSagas = {}
 let authSagas = {}
 
 export function configureZC(appDependencies) {
-  authSagas = configureAuthSagas(appDependencies)
-  apiSagas = configureApiSagas(appDependencies, authSagas.refreshJWT)
+  apiSagas = configureApiSagas(appDependencies)
+  authSagas = configureAuthSagas(appDependencies, apiSagas)
 }
 
 export {

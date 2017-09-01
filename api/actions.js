@@ -1,23 +1,24 @@
 import {
   REQUEST,
-  REQUEST_FETCHING,
-  REQUEST_FETCHED,
-  REQUEST_FAILED,
+  REQUEST_PENDING,
+  REQUEST_SUCCESS,
+  REQUEST_ERROR,
   REQUEST_CACHE_USED,
   POLL_REQUEST,
   STOP_POLL_REQUEST,
+  REFRESH_JWT,
 } from './constants'
 
-export const requestFetching = (endpoint, params = {}) => ({
-  type: REQUEST_FETCHING,
+export const requestPending = (endpoint, params = {}) => ({
+  type: REQUEST_PENDING,
   meta: {
     endpoint,
     params,
   },
 })
 
-export const requestFetched = (endpoint, params = {}, payload) => ({
-  type: REQUEST_FETCHED,
+export const requestSuccess = (endpoint, params = {}, payload) => ({
+  type: REQUEST_SUCCESS,
   meta: {
     endpoint,
     params,
@@ -25,8 +26,8 @@ export const requestFetched = (endpoint, params = {}, payload) => ({
   payload,
 })
 
-export const requestFailed = (endpoint, params = {}, error) => ({
-  type: REQUEST_FAILED,
+export const requestError = (endpoint, params = {}, error) => ({
+  type: REQUEST_ERROR,
   meta: {
     endpoint,
     params,
@@ -69,3 +70,5 @@ export const stopPollApiRequest = (endpoint, params = {}) => ({
     params,
   },
 })
+
+export const refreshJWT = () => ({ type: REFRESH_JWT })

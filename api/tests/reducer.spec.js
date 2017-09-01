@@ -16,7 +16,7 @@ describe('API Reducer', () => {
     it('adds a request key made up of the endpoint and params passed in action', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FETCHING, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_PENDING, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       expect(state.has(fromJS({ endpoint, params }))).to.be.equal(true)
     })
@@ -24,7 +24,7 @@ describe('API Reducer', () => {
     it('the request key used should be immutable', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FETCHING, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_PENDING, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       params.test = 1
       expect(state.has(fromJS({ endpoint, params }))).to.be.equal(false)
@@ -41,12 +41,12 @@ describe('API Reducer', () => {
     })
   })
 
-  describe('REQUEST_FETCHING', () => {
+  describe('REQUEST_PENDING', () => {
 
     it('sets the request fetching flag true', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FETCHING, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_PENDING, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'fetching'])).to.be.equal(true)
@@ -55,7 +55,7 @@ describe('API Reducer', () => {
     it('sets the request error flag false', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FETCHING, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_PENDING, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'error'])).to.be.equal(false)
@@ -64,20 +64,20 @@ describe('API Reducer', () => {
     it('sets the request success flag false', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FETCHING, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_PENDING, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'success'])).to.be.equal(false)
     })
   })
 
-  describe('REQUEST_FETCHED', () => {
+  describe('REQUEST_SUCCESS', () => {
 
     it('converts the action payload to immutable and stores in response', () => {
       const endpoint = Symbol()
       const params = Symbol()
       const payload = Symbol()
-      const action = { type: C.REQUEST_FETCHED, meta: { endpoint, params }, payload }
+      const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }, payload }
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'response'])).to.be.deep.equal(fromJS(payload))
@@ -87,7 +87,7 @@ describe('API Reducer', () => {
       const endpoint = Symbol()
       const params = Symbol()
       const payload = Symbol()
-      const action = { type: C.REQUEST_FETCHED, meta: { endpoint, params }, payload }
+      const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }, payload }
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'updated']).slice(0, -2)).to.be.equal(new Date().toISOString().slice(0, -2))
@@ -96,7 +96,7 @@ describe('API Reducer', () => {
     it('sets the request fetching flag false', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FETCHED, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'fetching'])).to.be.equal(false)
@@ -105,7 +105,7 @@ describe('API Reducer', () => {
     it('sets the request error flag false', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FETCHED, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'error'])).to.be.equal(false)
@@ -114,20 +114,20 @@ describe('API Reducer', () => {
     it('sets the request success flag truue', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FETCHED, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'success'])).to.be.equal(true)
     })
   })
 
-  describe('REQUEST_FAILED', () => {
+  describe('REQUEST_ERROR', () => {
 
     it('converts the action payload to immutable and stores in errorResponse', () => {
       const endpoint = Symbol()
       const params = Symbol()
       const payload = Symbol()
-      const action = { type: C.REQUEST_FAILED, meta: { endpoint, params }, payload }
+      const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }, payload }
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'errorResponse'])).to.be.deep.equal(fromJS(payload))
@@ -136,7 +136,7 @@ describe('API Reducer', () => {
     it('sets the request fetching flag false', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FAILED, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'fetching'])).to.be.equal(false)
@@ -145,7 +145,7 @@ describe('API Reducer', () => {
     it('sets the request error flag true', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FAILED, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'error'])).to.be.equal(true)
@@ -154,7 +154,7 @@ describe('API Reducer', () => {
     it('sets the request success flag false', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FAILED, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'success'])).to.be.equal(false)
@@ -163,7 +163,7 @@ describe('API Reducer', () => {
     it('sets the request polling flag false', () => {
       const endpoint = Symbol()
       const params = {}
-      const action = { type: C.REQUEST_FAILED, meta: { endpoint, params }}
+      const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'polling'])).to.be.equal(false)

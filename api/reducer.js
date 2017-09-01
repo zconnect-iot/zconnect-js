@@ -1,7 +1,7 @@
 import { fromJS } from 'immutable'
 import { transformError } from '../auth/utils'
 import {
- REQUEST_FAILED, REQUEST_FETCHED, REQUEST_FETCHING, POLL_REQUEST, STOP_POLL_REQUEST,
+ REQUEST_ERROR, REQUEST_SUCCESS, REQUEST_PENDING, POLL_REQUEST, STOP_POLL_REQUEST,
 } from './constants'
 
 
@@ -12,24 +12,24 @@ export default function requestReducer(state = fromJS({}), action) {
     .filter((value, key) => ['endpoint', 'params'].indexOf(key) !== -1)
 
   switch (action.type) {
-    case REQUEST_FETCHING:
+    case REQUEST_PENDING:
       return state
-        .setIn([request, 'fetching'], true)
+        .setIn([request, 'pending'], true)
         .setIn([request, 'error'], false)
         .setIn([request, 'success'], false)
 
-    case REQUEST_FETCHED:
+    case REQUEST_SUCCESS:
       return state
         .setIn([request, 'response'], fromJS(action.payload))
-        .setIn([request, 'fetching'], false)
+        .setIn([request, 'pending'], false)
         .setIn([request, 'error'], false)
         .setIn([request, 'success'], true)
         .setIn([request, 'updated'], new Date().toISOString())
 
-    case REQUEST_FAILED:
+    case REQUEST_ERROR:
       return state
-        .setIn([request, 'errorResponse'], fromJS(action.payload))
-        .setIn([request, 'fetching'], false)
+        .setIn([request, 'errorResponse'], fromJS(transformError(action.payload)))
+        .setIn([request, 'pending'], false)
         .setIn([request, 'error'], true)
         .setIn([request, 'success'], false)
         .setIn([request, 'polling'], false)

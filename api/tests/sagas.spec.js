@@ -3,7 +3,7 @@ import { call, put, select } from 'redux-saga/effects'
 import { logout } from '../../auth/actions'
 
 import { apifetch, formatUrl } from '../utils'
-import { requestFetching, requestFailed, requestFetched, requestCacheUsed } from '../actions'
+import { requestPending, requestError, requestSuccess, requestCacheUsed } from '../actions'
 import { selectTimeSinceLastFetch, selectRequestResponse } from '../selectors'
 import configureApiSagas from '../sagas'
 import * as C from '../constants'
@@ -256,7 +256,7 @@ describe('API Sagas', () => {
     describe('fetching', () => {
       const action = makeAction({ endpoint: 'secureGet' })
 
-      it('should put REQUEST_FETCHING action', () => {
+      it('should put REQUEST_PENDING action', () => {
         const saga = apiRequest(action)
         const processedParams = Symbol()
         const formattedUrl = Symbol()
@@ -264,7 +264,7 @@ describe('API Sagas', () => {
         saga.next(processedParams)
         saga.next()
         expect(saga.next(formattedUrl).value)
-          .to.be.deep.equal(put(requestFetching('secureGet', processedParams)))
+          .to.be.deep.equal(put(requestPending('secureGet', processedParams)))
       })
 
       it('should call secureApiSaga if config.token is true', () => {
@@ -291,7 +291,7 @@ describe('API Sagas', () => {
     })
 
     describe('fetched', () => {
-      it('should put REQUEST_FETCHED action with endpoint, params and response', () => {
+      it('should put REQUEST_SUCCESS action with endpoint, params and response', () => {
         const saga = apiRequest(makeAction({ endpoint: 'secureGet' }))
         const processedParams = Symbol()
         const formattedUrl = Symbol()
@@ -302,7 +302,7 @@ describe('API Sagas', () => {
         saga.next(formattedUrl)
         saga.next()
         expect(saga.next(response).value)
-          .to.be.deep.equal(put(requestFetched('secureGet', processedParams, response)))
+          .to.be.deep.equal(put(requestSuccess('secureGet', processedParams, response)))
       })
 
       it('should return the response', () => {
@@ -322,7 +322,7 @@ describe('API Sagas', () => {
     })
 
     describe('failed', () => {
-      it('should put REQUEST_FAILED action with endpoint, params and the error', () => {
+      it('should put REQUEST_ERROR action with endpoint, params and the error', () => {
         const saga = apiRequest(makeAction({ endpoint: 'secureGet' }))
         const processedParams = Symbol()
         const formattedUrl = Symbol()
@@ -333,7 +333,7 @@ describe('API Sagas', () => {
         saga.next(formattedUrl)
         saga.next()
         expect(saga.throw(apiError).value)
-          .to.be.deep.equal(put(requestFailed('secureGet', processedParams, apiError)))
+          .to.be.deep.equal(put(requestError('secureGet', processedParams, apiError)))
       })
 
       it('should throw any errors if saga called directly', () => {

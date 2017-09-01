@@ -1,8 +1,8 @@
 {
   "name": "zc-core",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "ZConnect Core JS Module",
-  "main": "lib/zc-core.js",
+  "main": "main.js",
   "scripts": {
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",

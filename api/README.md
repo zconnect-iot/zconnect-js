@@ -52,11 +52,11 @@ Config:
 ```
 Container:
 ```
-import { apiActions } from 'zc-core'
+import { apiRequest } from 'zc-core/api/actions'
 ...
 const mapDispatchToProps = dispatch => ({
   ...
-  fetchBrands: () => dispatch(apiActions.apiRequest('getBrands')),
+  fetchBrands: () => dispatch(apiRequest('getBrands')),
 })
 ```
 
@@ -77,11 +77,11 @@ config:
 ```
 Container:
 ```
-import { apiActions } from 'zc-core'
+import { apiRequest } from 'zc-core/api/actions'
 ...
 const mapDispatchToProps = dispatch => ({
   ...
-  fetchWeather: () => dispatch(apiActions.apiRequest('getWeather', { locationId: selectLocationId })),
+  fetchWeather: () => dispatch(apiRequest('getWeather', { locationId: selectLocationId })),
 })
 ```
 
@@ -118,8 +118,7 @@ export const fetchDevices = () => {
 No matter what method used the api state and response will be stored at `state.api.{ endpoint, params }`. The `api/selectors` include parameterised selectors that simplify selecting the data for a specific request. They require the `endpoint` (and `params` if used) to be passed as props e.g.
 
 ```
-import { apiSelectors } from 'zc-core'
-const { selectRequestPending, selectRequestResponse, selectRequestFailed } = apiSelectors
+import { selectRequestPending, selectRequestResponse, selectRequestFailed } from 'zc-core/api/selectors'
 ...
 const mapStateToProps = state => ({
   fetching: selectRequestPending(state, { endpoint: 'getBrands' }),
@@ -130,11 +129,11 @@ const mapStateToProps = state => ({
 ### Polling
 Polling an endpoint is as simple as dispatching a `POLL_REQUEST` action with the `endpoint` and `interval` specified in the `meta`. Or using the `pollApiRequest` action creator..
 ```
-import { apiActions } from 'zc-core'
+import { pollApiRequest, stopPollApiRequest } from 'zc-core/api/actions'
 ...
 const mapDispatchToProps = dispatch => ({
-  pollDevices: () => dispatch(apiActions.stopPollApiRequest('getDevices')),
-  stopPolling: () => dispatch(apiActions.pollApiRequest('getDevices', null, null, AppSettings.dataUpdateFrequency)),
+  pollDevices: () => dispatch(stopPollApiRequest('getDevices')),
+  stopPolling: () => dispatch(pollApiRequest('getDevices', null, null, AppSettings.dataUpdateFrequency)),
 })
 ```
 This will set the `polling` value in the state for that request (state.{ endpoint: getDevices }.polling) and trigger a pollRequest saga until `STOP_POLL_REQUEST` or `REQUEST_FAILED` is dispatched (with matching endpoint in meta)

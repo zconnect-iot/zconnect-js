@@ -9,20 +9,24 @@
 
 `npm i -S git+https://code.zoetrope.io/zconnect/zconnect-js.git`
 
+Or as add as a submodule and:
+
+`npm i -S <path_to_zconnect-js>`
+
 #### Configure with app dependencies
 
 Run `configureZC` passing all the required dependencies as an object. This must be done at or near entry point of the app, before the store is created or the sagas required there will not be defined. This can all be done in an initialisation file which is simply imported at the entry point e.g.
 
 ```
 // initialiseCore.js
-import { configure } from 'zc-core'
+import { configureZC } from 'zc-core'
 import { Sentry } from 'react-native-sentry'
 
 import AppSettings from './config/AppSettings'
 import endpoints from './config/endpoints'
 import jwtStore from './jwtStore'
 
-configure({
+configureZC({
   Sentry,
   jwtStore,
   endpoints,
@@ -54,7 +58,8 @@ export default [
 
 #### Add the reducers to root reducer
 ```
-import { apiReducer, authReducer } from 'zc-core'
+import apiReducer from 'zc-core/api/reducer'
+import authReducer from 'zc-core/auth/reducer'
 ...
 const appReducer = combineReducers({
   ...
@@ -120,13 +125,13 @@ Could be hard coded inside the module if not likely to vary across apps
 
 [README](./src/api/README.md)
 
-## Developing
+## Developing (Not used)
 
 `npm run dev`
 
 Watches src files and builds unminified to `lib/zc-core.js` and `lib/zc-core.js.map`. You have to change the `main` entry in `package.json` so that the consuming app uses this version (and remember to change it back for production)
 
-## Building
+## Building (Not used)
 
 `npm run build`
 

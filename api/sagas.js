@@ -1,5 +1,5 @@
-import { takeEvery, delay } from 'redux-saga'
-import { put, call, select, race, takeLatest } from 'redux-saga/effects'
+import { takeEvery, delay, takeLatest } from 'redux-saga'
+import { put, call, select, race } from 'redux-saga/effects'
 import jwtDecode from 'jwt-decode'
 
 import { requestPending, requestSuccess, requestError, requestCacheUsed, stopPollApiRequest } from './actions'

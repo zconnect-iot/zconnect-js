@@ -4,7 +4,7 @@ import jwtDecode from 'jwt-decode'
 
 import { requestPending, requestSuccess, requestError, requestCacheUsed, stopPollApiRequest } from './actions'
 import { REQUEST, POLL_REQUEST, FETCH_TIMEOUT, REFRESH_JWT } from './constants'
-import { selectRequestPollingInterval, selectTimeSinceLastFetch, selectRequestResponse } from './selectors'
+import { selectPollingInterval, selectTimeSinceLastFetch, selectResponse } from './selectors'
 import { apifetch, formatUrl } from './utils'
 import { deserializeEJSON } from './eJSON'
 import { logout, setUserGroups } from '../auth/actions'
@@ -108,7 +108,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
       const cacheAge = yield select(selectTimeSinceLastFetch, { endpoint, params })
       if (cacheAge && cacheAge < config.cache) {
         yield put(requestCacheUsed(endpoint, params))
-        return yield select(selectRequestResponse, { endpoint, params })
+        return yield select(selectResponse, { endpoint, params })
       }
     }
     const url = yield call(formatUrl, config.url, params)
@@ -138,7 +138,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
       try {
         yield call(apiRequest, action)
         yield call(delay, interval)
-        interval = yield select(selectRequestPollingInterval, { endpoint, params })
+        interval = yield select(selectPollingInterval, { endpoint, params })
       }
       catch (e) {
         yield put(stopPollApiRequest(endpoint, params))

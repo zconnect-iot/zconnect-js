@@ -6,7 +6,7 @@ import { deserializeEJSON } from '../api/eJSON'
 
 import * as actions from './actions'
 import {
-  LOGIN_REQUEST,
+  LOGIN,
   LOGOUT,
   REGISTER_USER,
   RESET_PASSWORD,
@@ -43,11 +43,11 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
 
       const userGroups = JWTokenDecoded.aud
       yield put(actions.setUserGroups(userGroups))
-      yield put(actions.loginUserState(userID, email))
+      yield put(actions.loginSuccess(userID, email))
     }
     catch (err) {
       Sentry.captureException(err)
-      yield put(actions.loginFailure(err))
+      yield put(actions.loginError(err))
     }
   }
 
@@ -92,7 +92,7 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
 
   function* watcher() {
     yield [
-      takeLatest(LOGIN_REQUEST, loginSaga),
+      takeLatest(LOGIN, loginSaga),
       takeLatest(LOGOUT, logoutSaga),
       takeLatest(RESET_PASSWORD, resetPasswordSaga),
       takeLatest(REGISTER_USER, registerUserSaga),

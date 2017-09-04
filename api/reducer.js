@@ -1,5 +1,5 @@
 import { fromJS } from 'immutable'
-import { transformError } from '../auth/utils'
+import { transformError } from './utils'
 import {
  REQUEST_ERROR, REQUEST_SUCCESS, REQUEST_PENDING, POLL_REQUEST, STOP_POLL_REQUEST,
 } from './constants'

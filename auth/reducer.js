@@ -1,6 +1,6 @@
 import { fromJS } from 'immutable'
 import {
- LOGOUT, LOGIN_USER,
+ LOGOUT, LOGIN_SUCCESS,
  SET_USER_GROUPS, RESET_AUTH_API,
 } from './constants'
 
@@ -17,7 +17,7 @@ const _initialState = fromJS(initialState)
 function authReducer(state = _initialState, action) {
   switch (action.type) {
 
-    case LOGIN_USER:
+    case LOGIN_SUCCESS:
       return state
         .set('authenticated', true)
         .set('userId', action.userId)

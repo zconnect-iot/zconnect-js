@@ -1,8 +1,3 @@
-export function transformError(error) {
-  // Strips non JSON values like functions and returns simple object for passing to fromJS
-  return JSON.parse(JSON.stringify(error))
-}
-
 export function flattenObject(obj, name = '', separator = '_') {
   const flatObj = {}
   const loop = (o, path = name) => {

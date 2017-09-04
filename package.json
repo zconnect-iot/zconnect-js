@@ -6,8 +6,8 @@
   "scripts": {
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
-    "test": "mocha --recursive --require babel-polyfill --require ./test.js --compilers js:babel-core/register --colors ./src/**/*.spec.js",
-    "test:watch": "mocha --recursive --require babel-polyfill --require ./test.js --compilers js:babel-core/register --colors -w ./src/**/*.spec.js"
+    "test": "mocha --recursive --require babel-polyfill --require ./test.js --compilers js:babel-core/register --colors ./**/*.spec.js",
+    "test:watch": "mocha --recursive --require babel-polyfill --require ./test.js --compilers js:babel-core/register --colors -w ./**/*.spec.js"
   },
   "devDependencies": {
     "babel-cli": "6.24.1",

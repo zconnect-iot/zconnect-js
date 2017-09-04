@@ -4,11 +4,10 @@ import { logout } from '../../auth/actions'
 
 import { apifetch, formatUrl } from '../utils'
 import { requestPending, requestError, requestSuccess, requestCacheUsed } from '../actions'
-import { selectTimeSinceLastFetch, selectRequestResponse } from '../selectors'
+import { selectTimeSinceLastFetch, selectResponse } from '../selectors'
 import configureApiSagas from '../sagas'
 import * as C from '../constants'
 
-const refreshJWT = sinon.stub()
 const deps = {
   Sentry: {
     captureMessage: sinon.stub(),
@@ -46,11 +45,11 @@ const deps = {
     },
   },
 }
-const apiSagas = configureApiSagas(deps, refreshJWT)
+const apiSagas = configureApiSagas(deps)
 
 describe('API Sagas', () => {
 
-  const { secureFetch, fetchSaga, secureApiSaga, apiRequest, processParams, processPayload, insecureFetch } = apiSagas
+  const { secureFetch, fetchSaga, secureApiSaga, apiRequest, processParams, processPayload, insecureFetch, refreshJWT } = apiSagas
 
   describe('configureApiSagas()', () => {
     it('should return an object', () => {
@@ -404,7 +403,7 @@ describe('API Sagas', () => {
         saga.next()
         saga.next(timeSinceLastFetch)
         expect(saga.next().value)
-          .to.be.deep.equal(select(selectRequestResponse, { endpoint, params: processedParams }))
+          .to.be.deep.equal(select(selectResponse, { endpoint, params: processedParams }))
         expect(saga.next(cachedResponse).value)
           .to.be.deep.equal(cachedResponse)
       })
@@ -418,7 +417,7 @@ describe('API Sagas', () => {
         saga.next(processedParams)
         saga.next(timeSinceLastFetch)
         expect(saga.next().value)
-          .not.to.be.deep.equal(select(selectRequestResponse, { endpoint, params: processedParams }))
+          .not.to.be.deep.equal(select(selectResponse, { endpoint, params: processedParams }))
         expect(saga.next(cachedResponse).value)
           .not.to.be.deep.equal(cachedResponse)
       })

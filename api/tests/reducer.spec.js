@@ -43,13 +43,13 @@ describe('API Reducer', () => {
 
   describe('REQUEST_PENDING', () => {
 
-    it('sets the request fetching flag true', () => {
+    it('sets the request pending flag true', () => {
       const endpoint = Symbol()
       const params = {}
       const action = { type: C.REQUEST_PENDING, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'fetching'])).to.be.equal(true)
+      expect(state.getIn([key, 'pending'])).to.be.equal(true)
     })
 
     it('sets the request error flag false', () => {
@@ -76,7 +76,7 @@ describe('API Reducer', () => {
     it('converts the action payload to immutable and stores in response', () => {
       const endpoint = Symbol()
       const params = Symbol()
-      const payload = Symbol()
+      const payload = { some: { js: 'data' } }
       const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }, payload }
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
@@ -86,20 +86,20 @@ describe('API Reducer', () => {
     it('sets the updated property to current timestamp', () => {
       const endpoint = Symbol()
       const params = Symbol()
-      const payload = Symbol()
+      const payload = { some: { js: 'data' } }
       const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }, payload }
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'updated']).slice(0, -2)).to.be.equal(new Date().toISOString().slice(0, -2))
     })
 
-    it('sets the request fetching flag false', () => {
+    it('sets the request pending flag false', () => {
       const endpoint = Symbol()
       const params = {}
       const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'fetching'])).to.be.equal(false)
+      expect(state.getIn([key, 'pending'])).to.be.equal(false)
     })
 
     it('sets the request error flag false', () => {
@@ -126,20 +126,20 @@ describe('API Reducer', () => {
     it('converts the action payload to immutable and stores in errorResponse', () => {
       const endpoint = Symbol()
       const params = Symbol()
-      const payload = Symbol()
+      const payload = { some: { js: 'data' } }
       const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }, payload }
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
       expect(state.getIn([key, 'errorResponse'])).to.be.deep.equal(fromJS(payload))
     })
 
-    it('sets the request fetching flag false', () => {
+    it('sets the request pending flag false', () => {
       const endpoint = Symbol()
       const params = {}
       const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'fetching'])).to.be.equal(false)
+      expect(state.getIn([key, 'pending'])).to.be.equal(false)
     })
 
     it('sets the request error flag true', () => {

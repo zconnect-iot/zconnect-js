@@ -13,9 +13,10 @@ import authEndpoints from '../auth/endpoints'
 export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints }) {
   function* refreshJWT() {
     const url = 'api/v1/users/refresh_token'
+    const method = 'GET'
     try {
       const oldToken = yield call(jwtStore.get)
-      const response = yield call(secureFetch, baseURL, url, 'GET')
+      const response = yield call(secureFetch, { url, method })
 
       const email = oldToken.username
 
@@ -36,9 +37,10 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     }
   }
 
-  function* fetchSaga(...args) {
+  // Main fetch saga (used by all following methods) wraps apifetch in race timeout
+  function* fetchSaga(args) {
     const { response, timeout } = yield race({
-      response: call(apifetch, baseURL, ...args),
+      response: call(apifetch, { ...args, baseURL }),
       timeout: call(delay, FETCH_TIMEOUT),
     })
     if (timeout) throw new Error('API request timed out')
@@ -46,28 +48,28 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   }
 
   // Fetch methods - 3 options: Token + Logout if 401/403, Token + No logout, No token
-  function* secureFetch(...args) {
+  function* secureFetch(args) {
     const token = yield call(jwtStore.get)
-    return yield call(fetchSaga, ...args, token.password)
+    return yield call(fetchSaga, { ...args, token: token.password })
   }
 
-  function* insecureFetch(...args) {
-    return yield call(fetchSaga, ...args)
+  function* insecureFetch(args) {
+    return yield call(fetchSaga, args)
   }
 
-  function* secureApiSaga(...args) {
+  function* secureApiSaga(args) {
     let token = ''
     try {
       token = yield call(jwtStore.get)
        // if token undefined next line will be a reference error
-      return yield call(secureFetch, ...args)
+      return yield call(secureFetch, args)
     }
     catch (error) {
       const status = error.response && error.response.status
       if (!token || status === 401 || status === 403) {
         try {  // First try to get a new token and reperform request.
           yield call(refreshJWT)
-          return yield call(secureFetch, ...args)
+          return yield call(secureFetch, args)
         }
         catch (jwterr) {
           Sentry.captureMessage('Could not perform request after re-fetching JWT')
@@ -123,9 +125,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     try {
       const response = yield call(
         method,
-        url,
-        config.method,
-        payload,
+        { url, method: config.method, payload },
       )
       yield put(requestSuccess(endpoint, params, response))
       return response

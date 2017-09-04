@@ -19,7 +19,10 @@ String with the path to append to the `baseURL`. Can contain `${id}` to be repla
 String - Default: `GET`
 
 ### `token`
-Boolean - Default: `true` - Whether the token should be passed and a refresh attempt made on `403` response
+Boolean - Default: `true` - Whether the JWT token should be included in header
+
+### `logout`
+Boolean - Default: `true` - If token set above, whether a `LOGOUT` action should be dispatched after refreshing JWT following a `401` or `403` response (`secureApiSaga`)
 
 ### `cache`
 Number - Default: `0` - The time to 'cache' responses for in milliseconds. Responses will remain in state until overwritten, i.e. it is not deleted when stale. But the saga won't call `apiFetch` if cached response is younger than cache value set and will just return the stored response (and dispatch a `REQUEST_CACHE_USED` action for logging)

@@ -11,20 +11,6 @@ import { logout, setUserGroups } from '../auth/actions'
 import authEndpoints from '../auth/endpoints'
 
 export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints }) {
-  function* fetchSaga(...args) {
-    const { response, timeout } = yield race({
-      response: call(apifetch, baseURL, ...args),
-      timeout: call(delay, FETCH_TIMEOUT),
-    })
-    if (timeout) throw new Error('API request timed out')
-    return response
-  }
-
-  function* secureFetch(...args) {
-    const token = yield call(jwtStore.get)
-    return yield call(fetchSaga, ...args, token.password)
-  }
-
   function* refreshJWT() {
     const url = 'api/v1/users/refresh_token'
     try {
@@ -50,6 +36,25 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     }
   }
 
+  function* fetchSaga(...args) {
+    const { response, timeout } = yield race({
+      response: call(apifetch, baseURL, ...args),
+      timeout: call(delay, FETCH_TIMEOUT),
+    })
+    if (timeout) throw new Error('API request timed out')
+    return response
+  }
+
+  // Fetch methods - 3 options: Token + Logout if 401/403, Token + No logout, No token
+  function* secureFetch(...args) {
+    const token = yield call(jwtStore.get)
+    return yield call(fetchSaga, ...args, token.password)
+  }
+
+  function* insecureFetch(...args) {
+    return yield call(fetchSaga, ...args)
+  }
+
   function* secureApiSaga(...args) {
     let token = ''
     try {
@@ -71,10 +76,6 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
       }
       throw error
     }
-  }
-
-  function* insecureFetch(...args) {
-    return yield call(fetchSaga, ...args)
   }
 
   // If param is a selector yield select(it) otherwise return the supplied value
@@ -113,9 +114,15 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     }
     const url = yield call(formatUrl, config.url, params)
     yield put(requestPending(endpoint, params))
+
+    let method
+    if (!config.token) method = insecureFetch
+    else if (config.logout !== false) method = secureApiSaga
+    else method = secureFetch
+
     try {
       const response = yield call(
-        config.token ? secureApiSaga : insecureFetch,
+        method,
         url,
         config.method,
         payload,

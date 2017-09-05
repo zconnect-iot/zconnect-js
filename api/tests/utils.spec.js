@@ -35,15 +35,15 @@ describe('UTILS', () => {
       sandbox.restore()
     })
 
-    it('serialises the body value if POST request', () => {
+    it('serialises the payload if POST request', () => {
       const response = makeResponse()
       fetch.returns(response)
       const method = 'POST'
       const baseURL = 'baseURL/'
       const url = 'url'
-      const body = { some: { body: 'data' }}
-      return apifetch(baseURL, url, method, body)
-        .then(expect(serializeEJSON).to.have.been.calledWith(body))
+      const payload = { some: { body: 'data' }}
+      return apifetch({ baseURL, url, method, payload })
+        .then(expect(serializeEJSON).to.have.been.calledWith(payload))
     })
 
     // TODO: Fixx test

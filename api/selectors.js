@@ -20,19 +20,31 @@ const selectRequest = createSelector(
   (requests, meta) => requests.get(meta, Map()),
 )
 
-export const selectSuccess = createSelector(
+const selectState = createSelector(
   selectRequest,
-  request => request.get('success', false),
+  request => request.get('state', Map()),
 )
 
-export const selectError = createSelector(
-  selectRequest,
-  request => request.get('error', false),
+const selectSuccess = createSelector(
+  selectState,
+  state => state.get('success', false),
 )
 
-export const selectPending = createSelector(
-  selectRequest,
-  request => request.get('pending', false),
+const selectError = createSelector(
+  selectState,
+  state => state.get('error', false),
+)
+
+const selectPending = createSelector(
+  selectState,
+  state => state.get('pending', false),
+)
+
+export const selectAPIState = createSelector(
+  selectError,
+  selectSuccess,
+  selectPending,
+  (error, success, pending) => ({ error, success, pending }),
 )
 
 export const selectPollingInterval = createSelector(
@@ -53,13 +65,6 @@ export const selectTimeSinceLastFetch = createSelector(
   (lastFetch, now) => (lastFetch ? new XDate(lastFetch).diffMilliseconds(now) : null),
 )
 
-export const selectAPIState = createSelector(
-  selectError,
-  selectSuccess,
-  selectPending,
-  (error, success, pending) => ({ error, success, pending }),
-)
-
 export const selectResponse = createSelector(
   selectRequest,
   request => request.get('response'),
@@ -70,7 +75,7 @@ export const selectResponse = createSelector(
 */
 export const selectErrorObject = createSelector(
   selectRequest,
-  request => request.get('errorResponse', Map()),
+  request => request.get('error', Map()),
 )
 
 export const selectErrorTitle = createSelector(

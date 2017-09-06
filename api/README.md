@@ -19,7 +19,10 @@ String with the path to append to the `baseURL`. Can contain `${id}` to be repla
 String - Default: `GET`
 
 ### `token`
-Boolean - Default: `true` - Whether the token should be passed and a refresh attempt made on `403` response
+Boolean - Default: `true` - Whether the JWT token should be included in header
+
+### `logout`
+Boolean - Default: `true` - If token set above, whether a `LOGOUT` action should be dispatched after refreshing JWT following a `401` or `403` response (`secureApiSaga`)
 
 ### `cache`
 Number - Default: `0` - The time to 'cache' responses for in milliseconds. Responses will remain in state until overwritten, i.e. it is not deleted when stale. But the saga won't call `apiFetch` if cached response is younger than cache value set and will just return the stored response (and dispatch a `REQUEST_CACHE_USED` action for logging)
@@ -118,12 +121,12 @@ export const fetchDevices = () => {
 No matter what method used the api state and response will be stored at `state.api.{ endpoint, params }`. The `api/selectors` include parameterised selectors that simplify selecting the data for a specific request. They require the `endpoint` (and `params` if used) to be passed as props e.g.
 
 ```
-import { selectRequestPending, selectRequestResponse, selectRequestFailed } from 'zc-core/api/selectors'
+import { selectPending, selectResponse, selectError } from 'zc-core/api/selectors'
 ...
 const mapStateToProps = state => ({
-  fetching: selectRequestPending(state, { endpoint: 'getBrands' }),
-  failed: selectRequestFailed(state, { endpoint: 'getBrands' }),
-  brands: selectRequestResponse(state, { endpoint: 'getBrands' }),
+  fetching: selectPending(state, { endpoint: 'getBrands' }),
+  failed: selectError(state, { endpoint: 'getBrands' }),
+  brands: selectResponse(state, { endpoint: 'getBrands' }),
 })
 ```
 ### Polling
@@ -136,4 +139,4 @@ const mapDispatchToProps = dispatch => ({
   stopPolling: () => dispatch(pollApiRequest('getDevices', null, null, AppSettings.dataUpdateFrequency)),
 })
 ```
-This will set the `polling` value in the state for that request (state.{ endpoint: getDevices }.polling) and trigger a pollRequest saga until `STOP_POLL_REQUEST` or `REQUEST_FAILED` is dispatched (with matching endpoint in meta)
+This will set the `polling` value in the state for that request (state.{ endpoint: getDevices }.polling) and trigger a pollRequest saga until `STOP_POLL_REQUEST` or `REQUEST_ERROR` is dispatched (with matching endpoint in meta)

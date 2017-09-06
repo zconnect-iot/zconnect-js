@@ -1,13 +1,13 @@
 {
   "name": "zc-core",
-  "version": "1.0.0",
+  "version": "3.0.0",
   "description": "ZConnect Core JS Module",
   "main": "main.js",
   "scripts": {
     "build": "webpack --env build",
     "dev": "webpack --progress --colors --watch --env dev",
-    "test": "mocha --recursive --require babel-polyfill --require ./test.js --compilers js:babel-core/register --colors ./src/**/*.spec.js",
-    "test:watch": "mocha --recursive --require babel-polyfill --require ./test.js --compilers js:babel-core/register --colors -w ./src/**/*.spec.js"
+    "test": "mocha --recursive --require babel-polyfill --require ./test.js --compilers js:babel-core/register --colors './api/**/*.spec.js' './auth/**/*.spec.js'",
+    "test:watch": "mocha --recursive --require babel-polyfill --require ./test.js --compilers js:babel-core/register --colors -w .'./api/**/*.spec.js' './auth/**/*.spec.js'"
   },
   "devDependencies": {
     "babel-cli": "6.24.1",

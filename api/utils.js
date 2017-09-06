@@ -9,7 +9,7 @@ export function getHeaders(token) {
   return headers
 }
 
-export function apifetch(baseURL, url, method = 'GET', body = {}, token) {
+export function apifetch({ baseURL, url, method = 'GET', payload = {}, token }) {
   const fullUrl = `${baseURL}/${url}`
   const headers = getHeaders(token)
   const details = {
@@ -19,7 +19,7 @@ export function apifetch(baseURL, url, method = 'GET', body = {}, token) {
     cache: 'default',
   }
   if (method.toLowerCase() === 'post') {
-    details.body = JSON.stringify(serializeEJSON(body))
+    details.body = JSON.stringify(serializeEJSON(payload))
   }
   return fetch(fullUrl, details)
     .then((response) => {
@@ -49,4 +49,9 @@ export function formatUrl(url, params = {}) {
     .map(param => `${param[0]}=${param[1]}`)
     .join('&')
   return queryString ? `${formattedUrl}?${queryString}` : formattedUrl
+}
+
+export function transformError(error = {}) {
+  // Strips non JSON values like functions and returns simple object for passing to fromJS
+  return JSON.parse(JSON.stringify(error))
 }

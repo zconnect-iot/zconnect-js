@@ -14,34 +14,46 @@ const selectMetaFromProps = createSelector(
   (endpoint, params) => fromJS({ endpoint, params }),
 )
 
-const selectRequestDomain = createSelector(
+const selectRequest = createSelector(
   selectAPIDomain,
   selectMetaFromProps,
   (requests, meta) => requests.get(meta, Map()),
 )
 
-export const selectRequestFetched = createSelector(
-  selectRequestDomain,
-  request => request.get('success', false),
+const selectState = createSelector(
+  selectRequest,
+  request => request.get('state', Map()),
 )
 
-export const selectRequestFailed = createSelector(
-  selectRequestDomain,
-  request => request.get('error', false),
+const selectSuccess = createSelector(
+  selectState,
+  state => state.get('success', false),
 )
 
-export const selectRequestPending = createSelector(
-  selectRequestDomain,
-  request => request.get('fetching', false),
+const selectError = createSelector(
+  selectState,
+  state => state.get('error', false),
 )
 
-export const selectRequestPollingInterval = createSelector(
-  selectRequestDomain,
+const selectPending = createSelector(
+  selectState,
+  state => state.get('pending', false),
+)
+
+export const selectAPIState = createSelector(
+  selectError,
+  selectSuccess,
+  selectPending,
+  (error, success, pending) => ({ error, success, pending }),
+)
+
+export const selectPollingInterval = createSelector(
+  selectRequest,
   request => request.get('polling', false),
 )
 
 export const selectLastFetchedTime = createSelector(
-  selectRequestDomain,
+  selectRequest,
   request => request.get('updated'),
 )
 
@@ -53,24 +65,40 @@ export const selectTimeSinceLastFetch = createSelector(
   (lastFetch, now) => (lastFetch ? new XDate(lastFetch).diffMilliseconds(now) : null),
 )
 
-export const selectRequestAPIState = createSelector(
-  selectRequestFailed,
-  selectRequestFetched,
-  selectRequestPending,
-  (error, success, fetching) => ({ error, success, fetching }),
-)
-
-export const selectRequestResponse = createSelector(
-  selectRequestDomain,
+export const selectResponse = createSelector(
+  selectRequest,
   request => request.get('response'),
 )
 
-export const selectRequestError = createSelector(
-  selectRequestDomain,
-  request => request.get('errorResponse', Map()),
+/*
+* Error selectors
+*/
+export const selectErrorObject = createSelector(
+  selectRequest,
+  request => request.get('error', Map()),
 )
 
-export const selectRequestErrorStatus = createSelector(
-  selectRequestError,
+export const selectErrorTitle = createSelector(
+  selectErrorObject,
+  error => error.get('title'),
+)
+
+export const selectErrorDescription = createSelector(
+  selectErrorObject,
+  error => error.get('description'),
+)
+
+export const selectErrorResponseTitle = createSelector(
+  selectErrorObject,
+  error => error.getIn(['response', 'json', 'title']),
+)
+
+export const selectErrorResponseDescription = createSelector(
+  selectErrorObject,
+  error => error.getIn(['response', 'json', 'description']),
+)
+
+export const selectErrorResponseStatus = createSelector(
+  selectErrorObject,
   error => error.getIn(['response', 'status']),
 )

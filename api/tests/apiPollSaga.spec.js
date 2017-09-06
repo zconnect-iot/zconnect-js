@@ -1,7 +1,7 @@
 import { delay } from 'redux-saga'
 import { call, put, select } from 'redux-saga/effects'
 
-import { selectRequestPollingInterval } from '../selectors'
+import { selectPollingInterval } from '../selectors'
 import { stopPollApiRequest } from '../actions'
 import configureApiSagas from '../sagas'
 
@@ -77,10 +77,10 @@ describe('API Sagas', () => {
       saga.next()
       saga.next()
       expect(saga.next().value)
-        .to.be.deep.equal(select(selectRequestPollingInterval, { endpoint, params }))
+        .to.be.deep.equal(select(selectPollingInterval, { endpoint, params }))
     })
 
-    it('should repeat until selectRequestPollingInterval returns false', () => {
+    it('should repeat until selectPollingInterval returns false', () => {
       const endpoint = Symbol()
       const params = Symbol()
       const interval = 1000

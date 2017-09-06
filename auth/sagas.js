@@ -1,9 +1,7 @@
 import { call, put } from 'redux-saga/effects'
 import { takeLatest } from 'redux-saga'
-import jwtDecode from 'jwt-decode'
 
-import { deserializeEJSON } from '../api/eJSON'
-
+import { decodeJWT } from './utils'
 import * as actions from './actions'
 import {
   LOGIN,
@@ -12,7 +10,7 @@ import {
   RESET_PASSWORD,
 } from './constants'
 
-export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTimeout }, apiSagas) {
+export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
   function* logoutSaga() {
     try {
       yield call(jwtStore.delete)
@@ -35,7 +33,7 @@ export default function configureAuthSagas({ Sentry, jwtStore, baseURL, loginTim
 
       // Store token
       yield call(jwtStore.set, action.email, response.token)
-      const JWTokenDecoded = deserializeEJSON(jwtDecode(response.token))
+      const JWTokenDecoded = decodeJWT(response.token)
       const userID = JWTokenDecoded.oid.oid
 
       // Log the user in with Sentry

@@ -84,6 +84,7 @@ Selecting the error details can be achieved in 2 ways:
 
 1. Using the `selectLoginError`, `selectRegisterError` or `selectResetPasswordError` selectors and writing your own selectors to drill down into the object to determine the error to display
 2. Using any of the api selectors and passing the relevant `endpoint` key e.g.
+
 ```
 import { createSelector } from 'reselect'
 import {

@@ -1,4 +1,4 @@
-import { fromJS } from 'immutable'
+import { fromJS, Map } from 'immutable'
 import { transformError } from './utils'
 import {
  REQUEST_ERROR, REQUEST_SUCCESS, REQUEST_PENDING, POLL_REQUEST, STOP_POLL_REQUEST, REQUEST_RESET,
@@ -54,8 +54,8 @@ export default function requestReducer(state = fromJS({}), action) {
     case REQUEST_RESET:
       return state
         .setIn([request, 'state'], apiStates.get('initial'))
-        .setIn([request, 'response'], null)
-        .setIn([request, 'error'], null)
+        .setIn([request, 'response'], Map())
+        .setIn([request, 'error'], Map())
         .setIn([request, 'updated'], null)
         .setIn([request, 'polling'], false)
 

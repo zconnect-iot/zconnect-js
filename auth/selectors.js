@@ -2,6 +2,7 @@ import { createSelector } from 'reselect'
 import { selectAPIState, selectErrorObject } from '../api/selectors'
 
 const PREMIUM_USER_GROUP = 'premium_user'
+const BETA_USER_GROUP = 'beta'
 
 export const selectAuthDomain = state => state.get('auth')
 
@@ -18,12 +19,17 @@ export const selectEmail = createSelector(
 )
 export const selectUserGroups = createSelector(
   selectAuthDomain,
-  auth => auth.get('groups').toJS(),
+  auth => auth.get('groups'),
 )
 
 export const selectUserIsPremium = createSelector(
   selectUserGroups,
-  groups => !!groups && groups.indexOf(PREMIUM_USER_GROUP) > -1,
+  groups => groups.includes(PREMIUM_USER_GROUP),
+)
+
+export const selectUserIsBeta = createSelector(
+  selectUserGroups,
+  groups => groups.includes(BETA_USER_GROUP),
 )
 
 export const selectUserLoggedIn = createSelector(

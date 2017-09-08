@@ -14,37 +14,37 @@ const selectMetaFromProps = createSelector(
   (endpoint, params) => fromJS({ endpoint, params }),
 )
 
+// If a request hasn't been made yet there will be nothing in the store so this
+// returns a default/initial state until a request is made to populate the state
 const selectRequest = createSelector(
   selectAPIDomain,
   selectMetaFromProps,
-  (requests, meta) => requests.get(meta, Map()),
-)
-
-const selectState = createSelector(
-  selectRequest,
-  request => request.get('state', Map()),
-)
-
-const selectSuccess = createSelector(
-  selectState,
-  state => state.get('success', false),
-)
-
-const selectError = createSelector(
-  selectState,
-  state => state.get('error', false),
-)
-
-const selectPending = createSelector(
-  selectState,
-  state => state.get('pending', false),
+  (requests, meta) => requests.get(meta, fromJS({
+    state: { pending: false, success: false, error: false },
+    error: {},
+    response: {},
+    polling: false,
+  })),
 )
 
 export const selectAPIState = createSelector(
-  selectError,
-  selectSuccess,
-  selectPending,
-  (error, success, pending) => ({ error, success, pending }),
+  selectRequest,
+  request => request.get('state'),
+)
+
+export const selectSuccess = createSelector(
+  selectAPIState,
+  state => state.get('success'),
+)
+
+export const selectError = createSelector(
+  selectAPIState,
+  state => state.get('error'),
+)
+
+export const selectPending = createSelector(
+  selectAPIState,
+  state => state.get('pending'),
 )
 
 export const selectPollingInterval = createSelector(

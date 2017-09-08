@@ -6,7 +6,6 @@ import {
 
 
 export const initialState = {
-  authenticated: false,
   userId: null,
   email: null,
   groups: [],
@@ -19,19 +18,16 @@ function authReducer(state = _initialState, action) {
 
     case LOGIN_SUCCESS:
       return state
-        .set('authenticated', true)
         .set('userId', action.userId)
         .set('email', action.email)
 
     case LOGOUT:
       return state
-        .set('authenticated', false)
         .set('userId', null)
         .set('groups', fromJS([]))
 
     case RESET_AUTH_API:
       return state
-        .set('authenticated', false)
         .set('userId', null)
         .set('groups', fromJS([]))
 

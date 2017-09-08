@@ -30,19 +30,21 @@
     "yargs": "7.1.0"
   },
   "dependencies": {
-    "redux-saga": "0.x",
     "immutable": "3.x",
-    "reselect": "2.x",
+    "jwt-decode": "^2.1.0",
     "lodash": "4.x",
-    "xdate": "0.x",
-    "jwt-decode": "^2.1.0"
+    "react": "^15.x",
+    "redux-saga": "0.x",
+    "reselect": "2.x",
+    "xdate": "0.x"
   },
   "peerDependencies": {
     "redux-saga": "0.x",
     "immutable": "3.x",
     "reselect": "2.x",
     "lodash": "4.x",
-    "xdate": "0.x"
+    "xdate": "0.x",
+    "react": "^15.x"
   },
   "repository": {
     "type": "git",

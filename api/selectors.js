@@ -20,31 +20,24 @@ const selectRequest = createSelector(
   (requests, meta) => requests.get(meta, Map()),
 )
 
-const selectState = createSelector(
+export const selectAPIState = createSelector(
   selectRequest,
   request => request.get('state', Map()),
 )
 
-const selectSuccess = createSelector(
-  selectState,
+export const selectSuccess = createSelector(
+  selectAPIState,
   state => state.get('success', false),
 )
 
-const selectError = createSelector(
-  selectState,
+export const selectError = createSelector(
+  selectAPIState,
   state => state.get('error', false),
 )
 
-const selectPending = createSelector(
-  selectState,
+export const selectPending = createSelector(
+  selectAPIState,
   state => state.get('pending', false),
-)
-
-export const selectAPIState = createSelector(
-  selectError,
-  selectSuccess,
-  selectPending,
-  (error, success, pending) => ({ error, success, pending }),
 )
 
 export const selectPollingInterval = createSelector(

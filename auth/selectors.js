@@ -18,12 +18,12 @@ export const selectEmail = createSelector(
 )
 export const selectUserGroups = createSelector(
   selectAuthDomain,
-  auth => auth.get('groups').toJS(),
+  auth => auth.get('groups'),
 )
 
 export const selectUserIsPremium = createSelector(
   selectUserGroups,
-  groups => !!groups && groups.indexOf(PREMIUM_USER_GROUP) > -1,
+  groups => groups.includes(PREMIUM_USER_GROUP),
 )
 
 export const selectUserLoggedIn = createSelector(

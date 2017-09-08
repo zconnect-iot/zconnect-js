@@ -3,6 +3,7 @@ import {
   REQUEST_PENDING,
   REQUEST_SUCCESS,
   REQUEST_ERROR,
+  REQUEST_RESET,
   REQUEST_CACHE_USED,
   POLL_REQUEST,
   STOP_POLL_REQUEST,
@@ -34,6 +35,14 @@ export const requestError = (endpoint, params = {}, error) => ({
   },
   payload: error,
   error: true,
+})
+
+export const apiReset = (endpoint, params = {}) => ({
+  type: REQUEST_RESET,
+  meta: {
+    endpoint,
+    params,
+  },
 })
 
 export const apiRequest = (endpoint, params = {}, payload = {}) => ({

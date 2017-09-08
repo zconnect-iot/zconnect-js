@@ -49,7 +49,7 @@ describe('API Reducer', () => {
       const action = { type: C.REQUEST_PENDING, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'pending'])).to.be.equal(true)
+      expect(state.getIn([key, 'state', 'pending'])).to.be.equal(true)
     })
 
     it('sets the request error flag false', () => {
@@ -58,7 +58,7 @@ describe('API Reducer', () => {
       const action = { type: C.REQUEST_PENDING, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'error'])).to.be.equal(false)
+      expect(state.getIn([key, 'state', 'error'])).to.be.equal(false)
     })
 
     it('sets the request success flag false', () => {
@@ -67,7 +67,7 @@ describe('API Reducer', () => {
       const action = { type: C.REQUEST_PENDING, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'success'])).to.be.equal(false)
+      expect(state.getIn([key, 'state', 'success'])).to.be.equal(false)
     })
   })
 
@@ -99,7 +99,7 @@ describe('API Reducer', () => {
       const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'pending'])).to.be.equal(false)
+      expect(state.getIn([key, 'state', 'pending'])).to.be.equal(false)
     })
 
     it('sets the request error flag false', () => {
@@ -108,7 +108,7 @@ describe('API Reducer', () => {
       const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'error'])).to.be.equal(false)
+      expect(state.getIn([key, 'state', 'error'])).to.be.equal(false)
     })
 
     it('sets the request success flag truue', () => {
@@ -117,7 +117,7 @@ describe('API Reducer', () => {
       const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'success'])).to.be.equal(true)
+      expect(state.getIn([key, 'state', 'success'])).to.be.equal(true)
     })
   })
 
@@ -130,7 +130,7 @@ describe('API Reducer', () => {
       const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }, payload }
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'errorResponse'])).to.be.deep.equal(fromJS(payload))
+      expect(state.getIn([key, 'error'])).to.be.deep.equal(fromJS(payload))
     })
 
     it('sets the request pending flag false', () => {
@@ -139,7 +139,7 @@ describe('API Reducer', () => {
       const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'pending'])).to.be.equal(false)
+      expect(state.getIn([key, 'state', 'pending'])).to.be.equal(false)
     })
 
     it('sets the request error flag true', () => {
@@ -148,7 +148,7 @@ describe('API Reducer', () => {
       const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'error'])).to.be.equal(true)
+      expect(state.getIn([key, 'state', 'error'])).to.be.equal(true)
     })
 
     it('sets the request success flag false', () => {
@@ -157,7 +157,7 @@ describe('API Reducer', () => {
       const action = { type: C.REQUEST_ERROR, meta: { endpoint, params }}
       const state = reducer(undefined, action)
       const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'success'])).to.be.equal(false)
+      expect(state.getIn([key, 'state', 'success'])).to.be.equal(false)
     })
 
     it('sets the request polling flag false', () => {

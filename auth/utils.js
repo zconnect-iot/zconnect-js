@@ -1,3 +1,7 @@
+import jwtDecode from 'jwt-decode'
+
+import { deserializeEJSON } from '../api/eJSON'
+
 export function flattenObject(obj, name = '', separator = '_') {
   const flatObj = {}
   const loop = (o, path = name) => {
@@ -13,3 +17,9 @@ export function flattenObject(obj, name = '', separator = '_') {
   loop(obj)
   return flatObj
 }
+
+export const decodeJWT = token => deserializeEJSON(jwtDecode(token))
+
+export const getUserIdFromToken = token => decodeJWT(token).oid.oid
+
+export const getEmailFromToken = token => decodeJWT(token).email

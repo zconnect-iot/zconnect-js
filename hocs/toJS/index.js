@@ -15,8 +15,9 @@ const toJS = WrappedComponent => (wrappedComponentProps) => {
         : wrappedComponentProp[VALUE]
       return newProps
     }, {})
-
-  return <WrappedComponent {...propsJS} />
+  return React.createElement(WrappedComponent, { ...propsJS })
+  // return <WrappedComponent {...propsJS} />
+  // TODO: Work out why this jsx is not transpiled in zconnect-web-template
 }
 
 export default toJS

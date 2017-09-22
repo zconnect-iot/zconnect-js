@@ -1,5 +1,7 @@
 import { createSelector } from 'reselect'
 import { selectAPIState, selectErrorObject } from '../api/selectors'
+import messages from '../locale/translations'
+import { selectLocaleCode } from '../locale/selectors'
 
 const PREMIUM_USER_GROUP = 'premium_user'
 const BETA_USER_GROUP = 'beta'
@@ -47,3 +49,45 @@ export const selectResetPasswordAPIState = state => selectAPIState(state, { endp
 export const selectLoginError = state => selectErrorObject(state, { endpoint: 'login' })
 export const selectRegisterError = state => selectErrorObject(state, { endpoint: 'register' })
 export const selectResetPasswordError = state => selectErrorObject(state, { endpoint: 'resetPassword' })
+
+// Error details
+
+export const selectLoginErrorMessage = createSelector(
+  selectLoginError,
+  selectLocaleCode,
+  (error, locale) => {
+    const jsonDescription = error.getIn(['response', 'json', 'jsonDescription'])
+    const status = error.getIn(['response', 'status'])
+    const title = error.get('title')
+    const description = error.get('description')
+    if (jsonDescription === 'User has not confirmed their email') return messages[locale].emailconfirm
+    if (status === 404 || status === 403) return messages[locale].invalid
+    if (title || description) return description || title
+    return messages[locale].tryagain
+  },
+)
+
+export const selectRegisterErrorMessage = createSelector(
+  selectRegisterError,
+  selectLocaleCode,
+  (error, locale) => {
+    const jsonDescription = error.getIn(['response', 'json', 'jsonDescription'])
+    const title = error.get('title')
+    const description = error.get('description')
+    if (jsonDescription === 'Error creating new user: The email provided is already in use') return messages[locale].emailinuse
+    if (title || description) return description || title
+    return messages[locale].tryagain
+  },
+)
+
+export const selectForgottenPasswordErrorMessage = createSelector(
+  selectResetPasswordError,
+  selectLocaleCode,
+  (error, locale) => {
+    const title = error.get('title')
+    const description = error.get('description')
+    if (status === 404) return messages[locale].emailnotfound
+    if (title || description) return description || title
+    return messages[locale].tryagain
+  },
+)

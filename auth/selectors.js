@@ -53,7 +53,7 @@ export const selectResetPasswordError = state => selectErrorObject(state, { endp
 export const selectLoginErrorMessage = createSelector(
   selectLoginError,
   (error) => {
-    const jsonDescription = error.getIn(['response', 'json', 'jsonDescription'])
+    const jsonDescription = error.getIn(['response', 'json', 'description'])
     const status = error.getIn(['response', 'status'])
     const title = error.get('title')
     const description = error.get('description')
@@ -67,7 +67,7 @@ export const selectLoginErrorMessage = createSelector(
 export const selectRegisterErrorMessage = createSelector(
   selectRegisterError,
   (error) => {
-    const jsonDescription = error.getIn(['response', 'json', 'jsonDescription'])
+    const jsonDescription = error.getIn(['response', 'json', 'description'])
     const title = error.get('title')
     const description = error.get('description')
     if (jsonDescription === 'Error creating new user: The email provided is already in use') return 'emailinuse'

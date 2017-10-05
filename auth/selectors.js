@@ -1,7 +1,5 @@
 import { createSelector } from 'reselect'
 import { selectAPIState, selectErrorObject } from '../api/selectors'
-import messages from '../locale/translations'
-import { selectLocaleCode } from '../locale/selectors'
 
 const PREMIUM_USER_GROUP = 'premium_user'
 const BETA_USER_GROUP = 'beta'
@@ -54,40 +52,37 @@ export const selectResetPasswordError = state => selectErrorObject(state, { endp
 
 export const selectLoginErrorMessage = createSelector(
   selectLoginError,
-  selectLocaleCode,
-  (error, locale) => {
+  (error) => {
     const jsonDescription = error.getIn(['response', 'json', 'jsonDescription'])
     const status = error.getIn(['response', 'status'])
     const title = error.get('title')
     const description = error.get('description')
-    if (jsonDescription === 'User has not confirmed their email') return messages[locale].emailconfirm
-    if (status === 404 || status === 403) return messages[locale].invalid
+    if (jsonDescription === 'User has not confirmed their email') return 'emailconfirm'
+    if (status === 404 || status === 403) return 'invalid'
     if (title || description) return description || title
-    return messages[locale].tryagain
+    return 'tryagain'
   },
 )
 
 export const selectRegisterErrorMessage = createSelector(
   selectRegisterError,
-  selectLocaleCode,
-  (error, locale) => {
+  (error) => {
     const jsonDescription = error.getIn(['response', 'json', 'jsonDescription'])
     const title = error.get('title')
     const description = error.get('description')
-    if (jsonDescription === 'Error creating new user: The email provided is already in use') return messages[locale].emailinuse
+    if (jsonDescription === 'Error creating new user: The email provided is already in use') return 'emailinuse'
     if (title || description) return description || title
-    return messages[locale].tryagain
+    return 'tryagain'
   },
 )
 
 export const selectForgottenPasswordErrorMessage = createSelector(
   selectResetPasswordError,
-  selectLocaleCode,
-  (error, locale) => {
+  (error) => {
     const title = error.get('title')
     const description = error.get('description')
-    if (status === 404) return messages[locale].emailnotfound
+    if (status === 404) return 'emailnotfound'
     if (title || description) return description || title
-    return messages[locale].tryagain
+    return 'tryagain'
   },
 )

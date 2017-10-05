@@ -41,7 +41,7 @@
   "timeout": "Authentifizierung fehlgeschlagen",
   "emailinvalid": "E-Mail nicht gültig",
   "passwordinvalid": "Passwort muss länger als 8 Zeichen sein ",
-  "Reset.password": "Passwort ändern",
+  "resetpassword": "Passwort ändern",
   "success": "Änderung erfolgreich",
   "emailsent": "Du bekommst eine E-Mail von uns. Nutze den Link, um dein Passwort zu ändern.",
   "emailnotfound": "E-Mail ungültig",

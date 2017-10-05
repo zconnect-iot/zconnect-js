@@ -42,7 +42,7 @@
   "emailinvalid": "L'indirizzo email inserito non è valido",
   "passwordinvalid": "La password deve essere lunga almeno 8 caratteri ",
   "emailconfirm": "È necessario seguire il link nell'email di conferma",
-  "Reset.password": "Reimposta la password",
+  "resetpassword": "Reimposta la password",
   "success": "Reimpostazione riuscita",
   "emailsent": "Riceverai un'email a breve. Segui il link nell'email per reimpostare la password.",
   "emailnotfound": "Email non trovata",

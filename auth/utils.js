@@ -1,4 +1,5 @@
 import jwtDecode from 'jwt-decode'
+import emailRX from 'regex-email'
 
 import { deserializeEJSON } from '../api/eJSON'
 
@@ -23,3 +24,5 @@ export const decodeJWT = token => deserializeEJSON(jwtDecode(token))
 export const getUserIdFromToken = token => decodeJWT(token).oid.oid
 
 export const getEmailFromToken = token => decodeJWT(token).email
+
+export const isValidEmail = email => emailRX.test(email)

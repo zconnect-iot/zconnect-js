@@ -42,7 +42,7 @@
   "emailinvalid": "La dirección introducida no es válida",
   "passwordinvalid": "La contraseña debe tener al menos 8 caracteres ",
   "emailconfirm": "Debes seguir el enlace del correo electrónico de confirmación",
-  "Reset.password": "Restablecer contraseña",
+  "resetpassword": "Restablecer contraseña",
   "success": "Se ha restablecido",
   "emailsent": "Dentro de poco recibirás un correo electrónico. Sigue el enlace del correo para restablecer tu contraseña.",
   "emailnotfound": "No se encuentra el correo electrónico",

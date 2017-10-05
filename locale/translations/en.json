@@ -42,7 +42,7 @@
   "emailinvalid": "Email entered is not valid",
   "passwordinvalid": "Password must be 8 characters or more ",
   "emailconfirm": "You must follow the link in the confirmation email",
-  "Reset.password": "Reset Password",
+  "resetpassword": "Reset Password",
   "success": "Successful Reset",
   "emailsent": "You should receive an E-mail shortly. Follow the link in to reset your password.",
   "emailnotfound": "Email not found",

@@ -43,7 +43,7 @@
   "emailinvalid": "Email saisi invalide",
   "passwordinvalid": "Le mot de passe doit comporter 8 caractères ou plus ",
   "emailconfirm": "Vous devez suivre le lien dans l’email de confirmation",
-  "Reset.password": "Réinitialiser le mot de passe",
+  "resetpassword": "Réinitialiser le mot de passe",
   "success": "Réinitialisation réussie",
   "emailsent": "Vous devriez recevoir un email sous peu. Suivez le lien qu'il contient pour réinitialiser votre mot de passe.",
   "emailnotfound": "Email introuvable",

@@ -38,7 +38,8 @@
   },
   "dependencies": {
     "jwt-decode": "^2.1.0",
-    "prop-types": "^15.6.0"
+    "prop-types": "^15.6.0",
+    "regex-email": "^1.0.2"
   },
   "peerDependencies": {
     "redux-saga": "0.x",

@@ -79,6 +79,7 @@ export const selectRegisterErrorMessage = createSelector(
 export const selectForgottenPasswordErrorMessage = createSelector(
   selectResetPasswordError,
   (error) => {
+    const status = error.getIn(['response', 'status'])
     const title = error.get('title')
     const description = error.get('description')
     if (status === 404) return 'emailnotfound'

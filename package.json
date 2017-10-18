@@ -12,8 +12,10 @@
     "babel-cli": "6.24.1",
     "babel-core": "6.24.1",
     "babel-eslint": "7.2.3",
+    "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-env": "^1.6.0",
+    "babel-preset-react": "^6.24.1",
     "chai": "3.5.0",
     "eslint": "3.19.0",
     "eslint-config-airbnb": "^15.1.0",
@@ -35,7 +37,9 @@
     "yargs": "7.1.0"
   },
   "dependencies": {
-    "jwt-decode": "^2.1.0"
+    "jwt-decode": "^2.1.0",
+    "prop-types": "^15.6.0",
+    "regex-email": "^1.0.2"
   },
   "peerDependencies": {
     "redux-saga": "0.x",
@@ -43,7 +47,8 @@
     "reselect": "2.x",
     "lodash": "4.x",
     "xdate": "0.x",
-    "react": "^15.x"
+    "react": "15.x",
+    "react-redux": "5.x"
   },
   "repository": {
     "type": "git",

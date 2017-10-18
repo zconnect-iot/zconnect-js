@@ -15,7 +15,6 @@ const toJS = WrappedComponent => (wrappedComponentProps) => {
         : wrappedComponentProp[VALUE]
       return newProps
     }, {})
-
   return <WrappedComponent {...propsJS} />
 }
 

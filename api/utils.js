@@ -23,16 +23,21 @@ export function apifetch({ baseURL, url, method = 'GET', payload = {}, token }) 
   }
   return fetch(fullUrl, details)
     .then((response) => {
-      if (response.json) {
-        return response.json()
-          .then(json => deserializeEJSON(json))
-          .then((json) => {
-            if (response.ok) return json
-            response.json = json
-            throw new APIError(response)
-          })
-      }
-      else if (!response.ok) throw new APIError(response)
+      const { status, ok, type, statusText } = response
+      if (response.json) return response.json()
+        .then(json => deserializeEJSON(json))
+        .then((json) => {
+          if (response.ok) return json
+          throw new APIError({ status, statusText, json, ok, type, url: response.url })
+        })
+      if (!response.ok) throw new APIError({
+        ...response,
+        status,
+        statusText,
+        ok,
+        type,
+        url: response.url,
+      })
       return {}
     })
 }

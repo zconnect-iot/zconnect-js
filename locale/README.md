@@ -54,7 +54,7 @@ Nav.contextTypes = {
   t: PropTypes.func,
 }
 ```
-Not that `contextTypes` must be defined for the component to 'see' the function. In a stateless functional component context is passed as second argument e.g.
+Note that `contextTypes` must be defined for the component to 'see' the function. In a stateless functional component context is passed as second argument e.g.
 
 ```
 const Login = (props, { t }) => <button>{t('login').toUpperCase()}</button>

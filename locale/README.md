@@ -16,7 +16,7 @@ A simple locale reducer that stores the locale code in the redux store under the
 `selectLocaleLanguage` - Returns the language name derived from the
 `selectAvailableLanguages` - List of languages for which translations are available
 
-## <Translator />
+## Translator
 
 This provides a translate function to all nested children (via react context) which will return the translation for a given key in the currently selected language. It needs to be near the root of the app but below `<Provider/>` as it connects to the store to get the locale e.g.
 
@@ -34,28 +34,16 @@ ReactDOM.render(
 )
 ```
 
-This provides any component to access the translate function (`t`) via `this.context` like so:
+This provides any component to access the translate function (`t`) via `this.context` using the `withTranslator` HOC..
 
-```
-// Nav.js
-class Nav extends React.Component {
-  render() {
-    const { t } = this.context
-    return (
-      <nav>
-        ...
-        <Button>{t('logout')}</Button
-      </nav>
-    )
-  }
-}
 
-Nav.contextTypes = {
-  t: PropTypes.func,
-}
+## withTranslator()
 ```
-Note that `contextTypes` must be defined for the component to 'see' the function. In a stateless functional component context is passed as second argument e.g.
+import { withTranslator } from 'zc-core/hocs'
+...
 
+export default withTranslator(LoginForm)
 ```
-const Login = (props, { t }) => <button>{t('login').toUpperCase()}</button>
-```
+The translate function will be passed down as a prop (`this.props.t`)
+
+The downside to either approach is that a change in context will not trigger a rerender in components nested inside any that implement `shouldComponentUpdate` like `connect`. There is a work around which involves [subscribing](https://medium.com/@mweststrate/how-to-safely-use-react-context-b7e343eff076) to the provider updates which could be implemented in this HOC in the future. So best to use the HOC instead of accessing context directly to minimise effort if/when we get round to doing that

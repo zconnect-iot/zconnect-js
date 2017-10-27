@@ -22,7 +22,6 @@ const selectRequest = createSelector(
   (requests, meta) => requests.get(meta, fromJS({
     state: { pending: false, success: false, error: false },
     error: {},
-    response: {},
     polling: false,
   })),
 )

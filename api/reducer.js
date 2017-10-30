@@ -39,11 +39,19 @@ export default function requestReducer(state = fromJS({}), action) {
       return state
         .setIn([request, 'state'], apiStates.get('pending'))
 
-    case REQUEST_SUCCESS:
-      return state
-        .setIn([request, 'response'], fromJS(action.payload))
+    case REQUEST_SUCCESS: {
+      const response = fromJS(action.payload)
+      // Could return Immutable or primitive hence following if condition
+      const lastResponse = state.getIn([request, 'response'])
+      if (response === lastResponse ||
+        (typeof response === 'object' && response.equals && response.equals(lastResponse))) return state
         .setIn([request, 'state'], apiStates.get('success'))
         .setIn([request, 'updated'], new Date().toISOString())
+      return state
+        .setIn([request, 'response'], response)
+        .setIn([request, 'state'], apiStates.get('success'))
+        .setIn([request, 'updated'], new Date().toISOString())
+    }
 
     case REQUEST_ERROR:
       return state

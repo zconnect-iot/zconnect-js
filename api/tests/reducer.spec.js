@@ -73,14 +73,30 @@ describe('API Reducer', () => {
 
   describe('REQUEST_SUCCESS', () => {
 
-    it('converts the action payload to immutable and stores in response', () => {
-      const endpoint = Symbol()
-      const params = Symbol()
-      const payload = { some: { js: 'data' } }
-      const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }, payload }
-      const state = reducer(undefined, action)
-      const key = fromJS({ endpoint, params })
-      expect(state.getIn([key, 'response'])).to.be.deep.equal(fromJS(payload))
+    describe('If response is different', () => {
+      it('converts the action payload to immutable and stores in response', () => {
+        const endpoint = Symbol()
+        const params = Symbol()
+        const payload = { some: { js: 'data' } }
+        const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }, payload }
+        const state = reducer(undefined, action)
+        const key = fromJS({ endpoint, params })
+        expect(state.getIn([key, 'response'])).to.be.deep.equal(fromJS(payload))
+      })
+    })
+
+    describe('If response is same', () => {
+      it('does not set the response', () => {
+        const endpoint = Symbol()
+        const params = Symbol()
+        const payload = { some: { js: 'data' } }
+        const action = { type: C.REQUEST_SUCCESS, meta: { endpoint, params }, payload }
+        const state1 = reducer(undefined, action)
+        const state2 = reducer(state1, action)
+        const key = fromJS({ endpoint, params })
+        expect(state1 !== state2).to.be.equal(false)
+        expect(state2.getIn([key, 'response']) === state1.getIn([key, 'response'])).to.be.equal(true)
+      })
     })
 
     it('sets the updated property to current timestamp', () => {

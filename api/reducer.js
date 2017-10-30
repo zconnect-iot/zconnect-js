@@ -1,4 +1,4 @@
-import { fromJS, Map } from 'immutable'
+import { fromJS, Map, Iterable } from 'immutable'
 import { transformError } from './utils'
 import {
  REQUEST_ERROR, REQUEST_SUCCESS, REQUEST_PENDING, POLL_REQUEST, STOP_POLL_REQUEST, REQUEST_RESET,
@@ -44,7 +44,7 @@ export default function requestReducer(state = fromJS({}), action) {
       // Could return Immutable or primitive hence following if condition
       const lastResponse = state.getIn([request, 'response'])
       if (response === lastResponse ||
-        (typeof response === 'object' && response.equals && response.equals(lastResponse))) return state
+        (Iterable.isIterable(response) && response.equals(lastResponse))) return state
         .setIn([request, 'state'], apiStates.get('success'))
         .setIn([request, 'updated'], new Date().toISOString())
       return state

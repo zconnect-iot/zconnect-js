@@ -2,7 +2,7 @@ import React from 'react'
 
 /*
   rewireProps provides a mechanism to rename props by providing a map e.g.
-  rewireProps({ value: 'label' }, Link) results in any 'value' prop being renamed
+  rewireProps({ value: 'label' })(Link) results in any 'value' prop being renamed
   'label'. This is useful where you need two components to work together and can't
   or don't want to modify their existing API's
 */

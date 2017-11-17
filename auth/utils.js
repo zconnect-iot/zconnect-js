@@ -25,4 +25,6 @@ export const getUserIdFromToken = token => decodeJWT(token).oid.oid
 
 export const getEmailFromToken = token => decodeJWT(token).email
 
+export const getUserGroupsFromToken = token => decodeJWT(token).aud
+
 export const isValidEmail = email => emailRX.test(email)

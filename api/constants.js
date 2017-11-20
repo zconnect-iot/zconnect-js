@@ -8,6 +8,4 @@ export const REQUEST_RESET = 'core/api/REQUEST_RESET'
 export const POLL_REQUEST = 'core/api/POLL_REQUEST'
 export const STOP_POLL_REQUEST = 'core/api/STOP_POLL_REQUEST'
 
-export const FETCH_TIMEOUT = 10000
-
 export const REFRESH_JWT = 'core/auth/REFRESH_JWT'

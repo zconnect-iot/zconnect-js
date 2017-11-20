@@ -31,7 +31,7 @@ configureZC({
   jwtStore,
   endpoints,
   baseURL: AppSettings.baseURL,
-  loginTimeout: AppSettings.loginTimeout,
+  defaultTimeout: AppSettings.defaultTimeout,
 })
 ```
 ```
@@ -111,7 +111,7 @@ The dictionary of endpoint configs used by `apiRequest`
 
 Just that, if we wanted to get rid of these dependencies, this could be set as an environment variable
 
-### loginTimeout
+### defaultTimeout
 
 Could be hard coded inside the module if not likely to vary across apps
 

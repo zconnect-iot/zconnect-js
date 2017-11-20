@@ -274,7 +274,7 @@ describe('API Sagas', () => {
         saga.next({})
         saga.next(formattedUrl)
         expect(saga.next().value)
-          .to.be.deep.equal(call(secureApiSaga, { url: formattedUrl, method: 'GET', payload: {} }))
+          .to.be.deep.equal(call(secureApiSaga, { url: formattedUrl, method: 'GET', payload: {}, timeout: undefined }))
       })
 
       it('should call insecureFetch if config.token is false', () => {
@@ -285,7 +285,7 @@ describe('API Sagas', () => {
         saga.next({})
         saga.next(formattedUrl)
         expect(saga.next().value)
-          .to.be.deep.equal(call(insecureFetch, { url: formattedUrl, method: 'POST', payload: {} }))
+          .to.be.deep.equal(call(insecureFetch, { url: formattedUrl, method: 'POST', payload: {}, timeout: undefined }))
       })
     })
 

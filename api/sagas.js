@@ -4,7 +4,7 @@ import jwtDecode from 'jwt-decode'
 
 import { requestPending, requestSuccess, requestError, requestCacheUsed, stopPollApiRequest } from './actions'
 import { REQUEST, POLL_REQUEST, REFRESH_JWT } from './constants'
-import { selectPollingInterval, selectTimeSinceLastFetch, selectResponse } from './selectors'
+import { selectPollingInterval, selectTimeSinceLastFetch, selectResponse, selectPending } from './selectors'
 import { apifetch, formatUrl } from './utils'
 import { deserializeEJSON } from './eJSON'
 import { logout, setUserGroups } from '../auth/actions'
@@ -39,15 +39,14 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
 
   // Main fetch saga (used by all following methods) wraps apifetch in race timeout
   function* fetchSaga({ timeout, ...args }) {
-    if (timeout || defaultTimeout) {
-      const result = yield race({
-        response: call(apifetch, { ...args, baseURL }),
-        timeout: call(delay, timeout || defaultTimeout),
-      })
-      if (result.timeout) throw new Error('API request timed out')
-      return result.response
-    }
-    return yield call(apifetch, { ...args, baseURL })
+    if (timeout === 0 ||
+      (!timeout && defaultTimeout === 0)) return yield call(apifetch, { ...args, baseURL })
+    const result = yield race({
+      response: call(apifetch, { ...args, baseURL }),
+      timeout: call(delay, timeout || defaultTimeout),
+    })
+    if (result.timeout) throw new Error('API request timed out')
+    return result.response
   }
 
   // Fetch methods - 3 options: Token + Logout if 401/403, Token + No logout, No token
@@ -146,7 +145,8 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     let interval = action.meta.interval
     while (interval) {
       try {
-        yield call(apiRequest, action)
+        const isPending = yield select(selectPending, { endpoint, params })
+        if (!isPending) yield call(apiRequest, action)
         yield call(delay, interval)
         interval = yield select(selectPollingInterval, { endpoint, params })
       }

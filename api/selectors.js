@@ -28,7 +28,7 @@ const selectRequest = createSelector(
 
 export const selectAPIState = createSelector(
   selectRequest,
-  request => request.get('state'),
+  request => request.get('state', Map({ pending: false, success: false, error: false })),
 )
 
 export const selectSuccess = createSelector(

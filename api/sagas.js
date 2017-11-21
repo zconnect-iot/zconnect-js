@@ -3,14 +3,14 @@ import { put, call, select, race } from 'redux-saga/effects'
 import jwtDecode from 'jwt-decode'
 
 import { requestPending, requestSuccess, requestError, requestCacheUsed, stopPollApiRequest } from './actions'
-import { REQUEST, POLL_REQUEST, FETCH_TIMEOUT, REFRESH_JWT } from './constants'
-import { selectPollingInterval, selectTimeSinceLastFetch, selectResponse } from './selectors'
+import { REQUEST, POLL_REQUEST, REFRESH_JWT } from './constants'
+import { selectPollingInterval, selectTimeSinceLastFetch, selectResponse, selectPending } from './selectors'
 import { apifetch, formatUrl } from './utils'
 import { deserializeEJSON } from './eJSON'
 import { logout, setUserGroups } from '../auth/actions'
 import authEndpoints from '../auth/endpoints'
 
-export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints }) {
+export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints, defaultTimeout = 0 }) {
   function* refreshJWT() {
     const url = 'api/v1/users/refresh_token'
     const method = 'GET'
@@ -38,13 +38,15 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   }
 
   // Main fetch saga (used by all following methods) wraps apifetch in race timeout
-  function* fetchSaga(args) {
-    const { response, timeout } = yield race({
+  function* fetchSaga({ timeout, ...args }) {
+    if (timeout === 0 ||
+      (!timeout && defaultTimeout === 0)) return yield call(apifetch, { ...args, baseURL })
+    const result = yield race({
       response: call(apifetch, { ...args, baseURL }),
-      timeout: call(delay, FETCH_TIMEOUT),
+      timeout: call(delay, timeout || defaultTimeout),
     })
-    if (timeout) throw new Error('API request timed out')
-    return response
+    if (result.timeout) throw new Error('API request timed out')
+    return result.response
   }
 
   // Fetch methods - 3 options: Token + Logout if 401/403, Token + No logout, No token
@@ -125,7 +127,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     try {
       const response = yield call(
         method,
-        { url, method: config.method, payload },
+        { url, method: config.method, payload, timeout: config.timeout },
       )
       yield put(requestSuccess(endpoint, params, response))
       return response
@@ -143,7 +145,8 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     let interval = action.meta.interval
     while (interval) {
       try {
-        yield call(apiRequest, action)
+        const isPending = yield select(selectPending, { endpoint, params })
+        if (!isPending) yield call(apiRequest, action)
         yield call(delay, interval)
         interval = yield select(selectPollingInterval, { endpoint, params })
       }

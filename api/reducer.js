@@ -41,14 +41,15 @@ export default function requestReducer(state = fromJS({}), action) {
 
     case REQUEST_SUCCESS: {
       const response = fromJS(action.payload)
+      const { storeKey } = action.meta
       // Could return Immutable or primitive hence following if condition
-      const lastResponse = state.getIn([request, 'response'])
+      const lastResponse = state.getIn(storeKey ? [storeKey] : [request, 'response'])
       if (response === lastResponse ||
         (Iterable.isIterable(response) && response.equals(lastResponse))) return state
         .setIn([request, 'state'], apiStates.get('success'))
         .setIn([request, 'updated'], new Date().toISOString())
       return state
-        .setIn([request, 'response'], response)
+        .setIn(storeKey ? [storeKey] : [request, 'response'], response)
         .setIn([request, 'state'], apiStates.get('success'))
         .setIn([request, 'updated'], new Date().toISOString())
     }

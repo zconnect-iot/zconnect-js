@@ -6,6 +6,8 @@ export const selectAPIDomain = state => state.get('api')
 
 const selectEndpointFromProps = (_, props = {}) => props.endpoint
 
+const selectStoreKeyFromProps = (_, props = {}) => props.storeKey
+
 const selectParamsFromProps = (_, { params = {} } = {}) => params
 
 const selectMetaFromProps = createSelector(
@@ -24,6 +26,12 @@ const selectRequest = createSelector(
     error: {},
     polling: false,
   })),
+)
+
+const selectDataForStoreKey = createSelector(
+  selectAPIDomain,
+  selectStoreKeyFromProps,
+  (api, key) => api.get(key),
 )
 
 export const selectAPIState = createSelector(
@@ -66,7 +74,8 @@ export const selectTimeSinceLastFetch = createSelector(
 
 export const selectResponse = createSelector(
   selectRequest,
-  request => request.get('response'),
+  selectDataForStoreKey,
+  (request, dataForStoreKey) => dataForStoreKey || request.get('response'),
 )
 
 /*

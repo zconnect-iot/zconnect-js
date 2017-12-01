@@ -18,11 +18,12 @@ export const requestPending = (endpoint, params = {}) => ({
   },
 })
 
-export const requestSuccess = (endpoint, params = {}, payload) => ({
+export const requestSuccess = (endpoint, params = {}, payload, storeKey) => ({
   type: REQUEST_SUCCESS,
   meta: {
     endpoint,
     params,
+    storeKey,
   },
   payload,
 })

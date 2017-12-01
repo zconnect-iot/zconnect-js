@@ -1,6 +1,7 @@
 import { takeEvery, delay, takeLatest } from 'redux-saga'
 import { put, call, select, race } from 'redux-saga/effects'
 import jwtDecode from 'jwt-decode'
+import { fromJS } from 'immutable'
 
 import { requestPending, requestSuccess, requestError, requestCacheUsed, stopPollApiRequest } from './actions'
 import { REQUEST, POLL_REQUEST, REFRESH_JWT } from './constants'
@@ -109,11 +110,12 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     if (!config) throw new Error(`No endpoint configuration found for: ${endpoint}`)
     const params = yield call(processParams, meta.params)
     const payload = yield call(processPayload, action.payload)
+    const requestKey = { endpoint, params }
     if (config.cache) {
-      const cacheAge = yield select(selectTimeSinceLastFetch, { endpoint, params })
+      const cacheAge = yield select(selectTimeSinceLastFetch, requestKey)
       if (cacheAge && cacheAge < config.cache) {
         yield put(requestCacheUsed(endpoint, params))
-        return yield select(selectResponse, { endpoint, params })
+        return yield select(selectResponse, requestKey)
       }
     }
     const url = yield call(formatUrl, config.url, params)
@@ -125,11 +127,18 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     else method = secureFetch
 
     try {
-      const response = yield call(
+      let response = yield call(
         method,
         { url, method: config.method, payload, timeout: config.timeout },
       )
-      yield put(requestSuccess(endpoint, params, response))
+      if (config.storeMethod) {
+        response = config.storeMethod(
+          yield select(selectResponse, { endpoint, params, storeKey: config.storeKey }),
+          fromJS(response),
+          params,
+        )
+      }
+      yield put(requestSuccess(endpoint, params, response, config.storeKey))
       return response
     }
     catch (e) {

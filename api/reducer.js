@@ -1,7 +1,7 @@
 import { fromJS, Map, Iterable } from 'immutable'
 import { transformError } from './utils'
 import {
- REQUEST_ERROR, REQUEST_SUCCESS, REQUEST_PENDING, POLL_REQUEST, STOP_POLL_REQUEST, REQUEST_RESET,
+ REQUEST_ERROR, REQUEST_SUCCESS, REQUEST_PENDING, POLL_REQUEST, SET_POLL_INTERVAL, REQUEST_RESET,
 } from './constants'
 import { RESET_AUTH_API } from '../auth/constants'
 
@@ -31,8 +31,9 @@ const apiStates = fromJS({
 export default function requestReducer(state = fromJS({}), action) {
   // The Map for using as the key under which to store the request state..
   // Should be just { endpoint, params } so other meta keys like interval are filtered out
-  const request = fromJS(action.meta || {})
+  let request = fromJS(action.meta || {})
     .filter((value, key) => ['endpoint', 'params'].indexOf(key) !== -1)
+  if (action.meta && action.meta.storeKey) request = action.meta.storeKey
 
   switch (action.type) {
     case REQUEST_PENDING:
@@ -41,15 +42,14 @@ export default function requestReducer(state = fromJS({}), action) {
 
     case REQUEST_SUCCESS: {
       const response = fromJS(action.payload)
-      const { storeKey } = action.meta
       // Could return Immutable or primitive hence following if condition
-      const lastResponse = state.getIn(storeKey ? [storeKey] : [request, 'response'])
+      const lastResponse = state.getIn([request, 'response'])
       if (response === lastResponse ||
         (Iterable.isIterable(response) && response.equals(lastResponse))) return state
         .setIn([request, 'state'], apiStates.get('success'))
         .setIn([request, 'updated'], new Date().toISOString())
       return state
-        .setIn(storeKey ? [storeKey] : [request, 'response'], response)
+        .setIn([request, 'response'], response)
         .setIn([request, 'state'], apiStates.get('success'))
         .setIn([request, 'updated'], new Date().toISOString())
     }
@@ -68,13 +68,13 @@ export default function requestReducer(state = fromJS({}), action) {
         .setIn([request, 'updated'], null)
         .setIn([request, 'polling'], false)
 
-    case POLL_REQUEST:
+    case SET_POLL_INTERVAL:
       return state
         .setIn([request, 'polling'], action.meta.interval)
 
-    case STOP_POLL_REQUEST:
-      return state
-        .setIn([request, 'polling'], false)
+    // case STOP_POLL_REQUEST:
+    //   return state
+    //     .setIn([request, 'polling'], false)
 
     case RESET_AUTH_API:
       return state

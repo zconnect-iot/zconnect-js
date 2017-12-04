@@ -10,18 +10,19 @@ const selectStoreKeyFromProps = (_, props = {}) => props.storeKey
 
 const selectParamsFromProps = (_, { params = {} } = {}) => params
 
-const selectMetaFromProps = createSelector(
+const selectRequestKeyFromProps = createSelector(
   selectEndpointFromProps,
   selectParamsFromProps,
-  (endpoint, params) => fromJS({ endpoint, params }),
+  selectStoreKeyFromProps,
+  (endpoint, params, storeKey) => storeKey || fromJS({ endpoint, params }),
 )
 
 // If a request hasn't been made yet there will be nothing in the store so this
 // returns a default/initial state until a request is made to populate the state
 const selectRequest = createSelector(
   selectAPIDomain,
-  selectMetaFromProps,
-  (requests, meta) => requests.get(meta, fromJS({
+  selectRequestKeyFromProps,
+  (requests, key) => requests.get(key, fromJS({
     state: { pending: false, success: false, error: false },
     error: {},
     polling: false,
@@ -74,8 +75,7 @@ export const selectTimeSinceLastFetch = createSelector(
 
 export const selectResponse = createSelector(
   selectRequest,
-  selectDataForStoreKey,
-  (request, dataForStoreKey) => dataForStoreKey || request.get('response'),
+  request => request.get('response'),
 )
 
 /*

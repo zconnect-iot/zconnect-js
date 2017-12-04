@@ -110,3 +110,10 @@ export const selectErrorResponseStatus = createSelector(
   selectErrorObject,
   error => error.getIn(['response', 'status']),
 )
+
+export const selectAPIErrorMessage = createSelector(
+  selectErrorResponseTitle,
+  selectErrorResponseDescription,
+  (title, description) => title && description ? `API Error - ${title} - ${description}` :
+    description || title || 'An unknown fetch error occurred'
+)

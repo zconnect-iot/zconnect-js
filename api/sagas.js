@@ -1,8 +1,9 @@
 import { takeEvery, delay, takeLatest } from 'redux-saga'
-import { put, call, select, race } from 'redux-saga/effects'
+import { put, call, select, race, cancel, fork } from 'redux-saga/effects'
 import jwtDecode from 'jwt-decode'
+import { fromJS, Map } from 'immutable'
 
-import { requestPending, requestSuccess, requestError, requestCacheUsed, stopPollApiRequest } from './actions'
+import { requestPending, requestSuccess, requestError, requestCacheUsed, setPollInterval } from './actions'
 import { REQUEST, POLL_REQUEST, REFRESH_JWT } from './constants'
 import { selectPollingInterval, selectTimeSinceLastFetch, selectResponse, selectPending } from './selectors'
 import { apifetch, formatUrl } from './utils'
@@ -109,15 +110,17 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     if (!config) throw new Error(`No endpoint configuration found for: ${endpoint}`)
     const params = yield call(processParams, meta.params)
     const payload = yield call(processPayload, action.payload)
+    const { storeKey } = config
+    const requestKey = { endpoint, params, storeKey }
     if (config.cache) {
-      const cacheAge = yield select(selectTimeSinceLastFetch, { endpoint, params })
+      const cacheAge = yield select(selectTimeSinceLastFetch, requestKey)
       if (cacheAge && cacheAge < config.cache) {
         yield put(requestCacheUsed(endpoint, params))
-        return yield select(selectResponse, { endpoint, params })
+        return yield select(selectResponse, requestKey)
       }
     }
     const url = yield call(formatUrl, config.url, params)
-    yield put(requestPending(endpoint, params))
+    yield put(requestPending(endpoint, params, storeKey))
 
     let method
     if (!config.token) method = insecureFetch
@@ -125,15 +128,22 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     else method = secureFetch
 
     try {
-      const response = yield call(
+      let response = yield call(
         method,
         { url, method: config.method, payload, timeout: config.timeout },
       )
-      yield put(requestSuccess(endpoint, params, response))
+      if (config.storeMethod) {
+        response = config.storeMethod(
+          yield select(selectResponse, requestKey),
+          fromJS(response),
+          params,
+        )
+      }
+      yield put(requestSuccess(endpoint, params, response, config.storeKey))
       return response
     }
     catch (e) {
-      yield put(requestError(endpoint, params, e))
+      yield put(requestError(endpoint, params, e, storeKey))
       // No action type indicates saga was called directly so errors should be handled
       // by caller. Otherwise errors should be swallowed (after dispatching REQUEST_ERROR)
       if (!type || type === POLL_REQUEST) throw e
@@ -141,26 +151,48 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   }
 
   function* apiPoll(action) {
-    const { endpoint, params } = action.meta
+    const { endpoint, params, storeKey } = action.meta
+    const requestKey = { endpoint, params, storeKey }
     let interval = action.meta.interval
+    yield put(setPollInterval(endpoint, params, interval, storeKey))
     while (interval) {
       try {
-        const isPending = yield select(selectPending, { endpoint, params })
+        const isPending = yield select(selectPending, requestKey)
         if (!isPending) yield call(apiRequest, action)
         yield call(delay, interval)
-        interval = yield select(selectPollingInterval, { endpoint, params })
+        interval = yield select(selectPollingInterval, requestKey)
       }
       catch (e) {
-        yield put(stopPollApiRequest(endpoint, params))
         interval = false
+        yield put(setPollInterval(endpoint, params, interval, storeKey))
         Sentry.captureMessage(`Polling endpoint, ${action.meta.endpoint}, returned an error. Polling will be stopped.`)
       }
     }
   }
 
+  /*
+    To mirror the reducer in that, for a given request key ({ endpoint, params } or storeKey)
+    there is only one api state, response, error and polling state associated with that request
+    The apiPollRegister ensures there is only one polling saga for a given request by cancelling
+    any exisiting tasks with the same key
+  */
+  let apiPollRegister = Map()
+
+  function* forkApiPoll(action) {
+    const { endpoint, params } = action.meta
+    const config = endpoints[endpoint] || {}
+    const { storeKey } = config
+    const requestKey = storeKey || { endpoint, params }
+    if (apiPollRegister.get(requestKey)) yield cancel(apiPollRegister.get(requestKey))
+    apiPollRegister = apiPollRegister.set(
+      requestKey,
+      yield fork(apiPoll, { ...action, meta: { ...action.meta, storeKey } }),
+    )
+  }
+
   function* watcher() {
     yield [
-      takeEvery(POLL_REQUEST, apiPoll),
+      takeEvery(POLL_REQUEST, forkApiPoll),
       takeEvery(REQUEST, apiRequest),
       takeLatest(REFRESH_JWT, refreshJWT),
     ]

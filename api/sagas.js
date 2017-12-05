@@ -163,7 +163,6 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
         interval = yield select(selectPollingInterval, requestKey)
       }
       catch (e) {
-        console.log(e);
         interval = false
         yield put(setPollInterval(endpoint, params, interval, storeKey))
         Sentry.captureMessage(`Polling endpoint, ${action.meta.endpoint}, returned an error. Polling will be stopped.`)
@@ -179,7 +178,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   */
   let apiPollRegister = Map()
 
-  function* spawnApiPoll(action) {
+  function* forkApiPoll(action) {
     const { endpoint, params } = action.meta
     const config = endpoints[endpoint] || {}
     const { storeKey } = config
@@ -193,7 +192,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
 
   function* watcher() {
     yield [
-      takeEvery(POLL_REQUEST, spawnApiPoll),
+      takeEvery(POLL_REQUEST, forkApiPoll),
       takeEvery(REQUEST, apiRequest),
       takeLatest(REFRESH_JWT, refreshJWT),
     ]

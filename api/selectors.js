@@ -17,27 +17,23 @@ const selectRequestKeyFromProps = createSelector(
   (endpoint, params, storeKey) => storeKey || fromJS({ endpoint, params }),
 )
 
+const initialState = fromJS({
+  state: { pending: false, success: false, error: false },
+  error: {},
+  polling: false,
+})
+
 // If a request hasn't been made yet there will be nothing in the store so this
 // returns a default/initial state until a request is made to populate the state
-const selectRequest = createSelector(
+export const selectRequest = createSelector(
   selectAPIDomain,
   selectRequestKeyFromProps,
-  (requests, key) => requests.get(key, fromJS({
-    state: { pending: false, success: false, error: false },
-    error: {},
-    polling: false,
-  })),
-)
-
-const selectDataForStoreKey = createSelector(
-  selectAPIDomain,
-  selectStoreKeyFromProps,
-  (api, key) => api.get(key),
+  (requests, key) => requests.get(key, initialState),
 )
 
 export const selectAPIState = createSelector(
   selectRequest,
-  request => request.get('state', Map({ pending: false, success: false, error: false })),
+  request => request.get('state', initialState.get('state')),
 )
 
 export const selectSuccess = createSelector(

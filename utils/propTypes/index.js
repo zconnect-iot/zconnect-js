@@ -9,3 +9,13 @@ export const zcApiShape = ImmutablePropTypes.contains({
   success: PropTypes.bool.isRequired,
   error: PropTypes.bool.isRequired,
 })
+
+export const zcApiShapeJS = PropTypes.shape({
+  pending: PropTypes.bool.isRequired,
+  success: PropTypes.bool.isRequired,
+  error: PropTypes.bool.isRequired,
+})
+
+export const objectId = PropTypes.shape({
+  oid: PropTypes.string.isRequired,
+})

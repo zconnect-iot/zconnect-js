@@ -1,6 +1,6 @@
 # ***REMOVED*** - API Module
 
-The `apiRequest` saga is a wrapper around `apiFetch` which takes an endpoint key (and optionally params and payload objects). The endpoint key is used to configure the request as defined in the `endpoints` dictionary.
+The `apiRequest` saga is a wrapper around the `apiFetch` promisified fetch function which takes an endpoint key (and optionally params and payload objects). The endpoint key is used to configure the request as defined in the `endpoints` dictionary.
 
 `apiRequest` can be triggered in 2 ways:
 1. via dispatching a `REQUEST` action using the apiRequest action creator
@@ -27,14 +27,15 @@ Boolean - Default: `true` - If token set above, whether a `LOGOUT` action should
 ### `cache`
 Number - Default: `0` - The time to 'cache' responses for in milliseconds. Responses will remain in state until overwritten, i.e. it is not deleted when stale. But the saga won't call `apiFetch` if cached response is younger than cache value set and will just return the stored response (and dispatch a `REQUEST_CACHE_USED` action for logging)
 
-### `schema` (Not implemented)
-Normalizr Schema - Default `null` - Response will be normalized using the defined schema and stored in this format
+### `storeKey`
+String - Default: `null` - Optional key at which to store the api state and response. Simplifies selecting data e.g. `state.api.<userDefinedKey>`. Also means that different endpoints can store responses in one place e.g. fetch devices and fetch device can merge data to one place
 
-### `storeAt` (Not implemented)
-String - Default: `null` - Optional key at which to store the response (normalised if set above). Would simplify selecting data e.g. `state.api.data.<userDefinedKey>`. Would mean that different endpoints can store responses in one place e.g. fetch devices and fetch device can merge data to one place
-
-### `storeMethod` (Not implemented)
-Function - Specify method by which to merge the fetched data with the existing data. This could be passed to immutable's `mergeDeepWith` to allow customisation of how fetched data is absorbed.
+### `storeMethod`
+Function - Provide a method by which to merge the fetched data with the existing data. Is passed three arguments:
+1. The last response (if any)
+2. The latest fetched response (already converted `toJS`)
+3. The url params used in last fetch
+Whatever is returned by this method is passed as the `payload` with a `REQUEST_SUCCESS` action to the reducer.
 
 ## Usage
 
@@ -118,15 +119,15 @@ export const fetchDevices = () => {
 ```
 
 ### Selecting the API state and response
-No matter what method used the api state and response will be stored at `state.api.{ endpoint, params }`. The `api/selectors` include parameterised selectors that simplify selecting the data for a specific request. They require the `endpoint` (and `params` if used) to be passed as props e.g.
+No matter what method used the api state and response will be stored at `state.api.{ endpoint, params }` or `state.api.<storeKey>` if `storeKey` config option used. The `api/selectors` include parameterised selectors that simplify selecting the data for a specific request. They require the `endpoint` (and `params` if used) or `storeKey` to be passed as props e.g.
 
 ```
-import { selectPending, selectResponse, selectError } from 'zc-core/api/selectors'
+import { selectResponse } from 'zc-core/api/selectors'
 ...
 const mapStateToProps = state => ({
-  fetching: selectPending(state, { endpoint: 'getBrands' }),
-  failed: selectError(state, { endpoint: 'getBrands' }),
   brands: selectResponse(state, { endpoint: 'getBrands' }),
+  doors: selectResponse(state, { storeKey: 'doors' }),
+  device: selectResponse(state, { endpoint, 'getDevice', params: { deviceId: '12345' }}),
 })
 ```
 ### Polling
@@ -140,3 +141,46 @@ const mapDispatchToProps = dispatch => ({
 })
 ```
 This will set the `polling` value in the state for that request (state.{ endpoint: getDevices }.polling) and trigger a pollRequest saga until `STOP_POLL_REQUEST` or `REQUEST_ERROR` is dispatched (with matching endpoint in meta)
+
+Taking advantage of the `storeKey`, `storeMethod` and passing selectors as `params`. It is possible to poll a single endpoint with different params on each fetch and converge the responses to one place with a single action. This is particularly useful where the params are time stamps e.g. when polling the time series data endpoint for the latest data over a set period...
+
+```
+// endpoints.js
+{
+  ...
+  getDoorData: {
+    url: 'api/v1/devices/${deviceId}/data',
+    method: 'GET',
+    token: true,
+    storeKey: 'doorData',
+    storeMethod: (last = Map(), next, params) => last
+      .setIn([params.deviceId, params.resolution], next),
+  },
+}
+```
+```
+// DoorGraph.js
+...
+const mapDispatchToProps = dispatch => ({
+  pollGraphData: () => dispatch(pollApiRequest(
+    'getDoorData',
+    {
+      deviceId: selectCurrentDeviceId,
+      resolution: selectResolutionForMode,
+      start: selectGraphStartParam,
+      end: selectGraphEndParam,
+    },
+    undefined,
+    AppSettings.pollingInterval,
+  )),
+  stopPollGraphData: () => dispatch(stopPollApiRequest(null, null, endpoints.getDoorData.storeKey)),
+})
+```
+
+### Gotchas / enhancements for v2
+
+1. The `storeKey` option means that all api state is stored at the provided key which means the api state of individual requests that use the same key are over written and only the most recent fetch state is there.
+
+This is really a problem where you want to converge the response of `GET`ting from and `POST`ing to an endpoint and your view loading spinner hangs off the `GET` api state but not be affected by the `POST` state. This can be worked around but could become an issue. Perhaps there should be an additional option to specify just storing the response at a provided key while the state is stored in it's normal place (however this causes issues with polling saga)
+
+2. Because the `storeMethod` function does it's magic outside the reducer in the saga. It's possible that 2 requests sharing the same key could invoke their own `storeMethod` functions in parallel yet only the last `REQUEST_SUCCESS` action would end up with it's payload in the state so responses could be lost.

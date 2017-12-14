@@ -99,13 +99,28 @@ export default {
 }
 ```
 
+On web:
+```
+export default {
+  get() {
+    return JSON.parse(localStorage.getItem('zcjwt'))
+  },
+  set(username, password) {
+    return localStorage.setItem('zcjwt', JSON.stringify({ username, password }))
+  },
+  delete() {
+    return localStorage.removeItem('zcjwt')
+  },
+}
+```
+
 ### Sentry
 
-Needed for setting user context on log in and capturing messages and exceptions. Can be a proxied version of the actual Sentry object as long as it provides setUserContext, captureMessage and captureException methods.
+Needed for setting user context on log in and capturing messages and exceptions. Can be a proxied version of the actual Sentry object as long as it provides `setUserContext`, `captureMessage` and `captureException` methods.
 
 ### endpoints
 
-The dictionary of endpoint configs used by `apiRequest`
+The dictionary of endpoint configs used by `apiRequest`. More details [here](./api/README.md)
 
 ### baseURL
 
@@ -113,7 +128,7 @@ Just that, if we wanted to get rid of these dependencies, this could be set as a
 
 ### defaultTimeout
 
-Could be hard coded inside the module if not likely to vary across apps
+API Request timeout interval. Number - defaults to 0 which means requests will never time out.
 
 ## Usage
 
@@ -124,18 +139,6 @@ Could be hard coded inside the module if not likely to vary across apps
 ### API
 
 [README](./api/README.md)
-
-## Developing (Not used)
-
-`npm run dev`
-
-Watches src files and builds unminified to `lib/zc-core.js` and `lib/zc-core.js.map`. You have to change the `main` entry in `package.json` so that the consuming app uses this version (and remember to change it back for production)
-
-## Building (Not used)
-
-`npm run build`
-
-Generates minified version. Probably this is not needed if webpack is being used by the importing app as will be minified for production then.
 
 ## Testing
 

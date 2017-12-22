@@ -63,8 +63,6 @@ export default function requestReducer(state = fromJS({}), action) {
     case REQUEST_RESET:
       return state
         .setIn([request, 'state'], apiStates.get('initial'))
-        .setIn([request, 'response'], Map())
-        .setIn([request, 'error'], Map())
         .setIn([request, 'updated'], null)
         .setIn([request, 'polling'], false)
 

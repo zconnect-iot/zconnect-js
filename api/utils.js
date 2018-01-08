@@ -42,12 +42,15 @@ export function apifetch({ baseURL, url, method = 'GET', payload = {}, token }) 
     })
 }
 
-export function formatUrl(url, params = {}) {
+export function formatUrl(url, params = {}, defaultParams = {}) {
+  // Replaces any ${<PARAM>} strings in url with the value in params or defaultParams
+  // Throws if any are missing. Appends any extra params (but not defaults) to the
+  // url as search queries i.e. ...?sort=asc
   const used = {}
   const formattedUrl = url.replace(/\$\{([a-zA-Z0-9_]*)\}/g, (match, param) => {
-    if (!params[param]) throw new Error(`Required parameter, ${param}, has not been provided`)
+    if (!params[param] && !defaultParams[param]) throw new Error(`Required parameter, ${param}, has not been provided`)
     used[param] = true
-    return params[param]
+    return params[param] || defaultParams[param]
   })
   const queryString = Object.entries(params)
     .filter(param => !used[param[0]])

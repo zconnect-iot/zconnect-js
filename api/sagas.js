@@ -11,7 +11,7 @@ import { deserializeEJSON } from './eJSON'
 import { logout, setUserGroups } from '../auth/actions'
 import authEndpoints from '../auth/endpoints'
 
-export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints, defaultTimeout = 0 }) {
+export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints, defaultParams = {}, defaultTimeout = 0 }) {
   function* refreshJWT() {
     const url = 'api/v1/users/refresh_token'
     const method = 'GET'
@@ -109,6 +109,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     const config = authEndpoints[endpoint] || endpoints[endpoint]
     if (!config) throw new Error(`No endpoint configuration found for: ${endpoint}`)
     const params = yield call(processParams, meta.params)
+    const defaults = yield call(processParams, defaultParams)
     const payload = yield call(processPayload, action.payload)
     const { storeKey } = config
     const requestKey = { endpoint, params, storeKey }
@@ -119,7 +120,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
         return yield select(selectResponse, requestKey)
       }
     }
-    const url = yield call(formatUrl, config.url, params)
+    const url = yield call(formatUrl, config.url, params, defaults)
     yield put(requestPending(endpoint, params, storeKey))
 
     let method

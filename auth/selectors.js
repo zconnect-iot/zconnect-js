@@ -60,7 +60,7 @@ export const selectLoginErrorMessage = createSelector(
     if (jsonDescription === 'User has not confirmed their email') return 'emailconfirm'
     if (status === 404 || status === 403) return 'invalid'
     if (title || description) return description || title
-    return 'tryagain'
+    return 'server'
   },
 )
 
@@ -72,7 +72,7 @@ export const selectRegisterErrorMessage = createSelector(
     const description = error.get('description')
     if (jsonDescription === 'Error creating new user: The email provided is already in use') return 'emailinuse'
     if (title || description) return description || title
-    return 'tryagain'
+    return 'server'
   },
 )
 
@@ -84,6 +84,6 @@ export const selectForgottenPasswordErrorMessage = createSelector(
     const description = error.get('description')
     if (status === 404) return 'emailnotfound'
     if (title || description) return description || title
-    return 'tryagain'
+    return 'server'
   },
 )

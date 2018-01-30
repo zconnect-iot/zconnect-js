@@ -24,6 +24,7 @@ export function apifetch({ baseURL, url, method = 'GET', payload = {}, token }) 
   return fetch(fullUrl, details)
     .then((response) => {
       const { status, ok, type, statusText } = response
+      if (response.status === 204) return {} // 204 is no content code
       if (response.json) return response.json()
         .then(json => deserializeEJSON(json))
         .then((json) => {

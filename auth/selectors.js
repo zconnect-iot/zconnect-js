@@ -1,8 +1,12 @@
 import { createSelector } from 'reselect'
+import { List } from 'immutable'
 import { selectAPIState, selectErrorObject } from '../api/selectors'
 
 const PREMIUM_USER_GROUP = 'premium_user'
 const BETA_USER_GROUP = 'beta'
+
+const emptyList = List()
+
 
 export const selectAuthDomain = state => state.get('auth')
 
@@ -20,6 +24,10 @@ export const selectEmail = createSelector(
 export const selectUserGroups = createSelector(
   selectAuthDomain,
   auth => auth.get('groups'),
+)
+export const selectUserOrgs = createSelector(
+  selectAuthDomain,
+  auth => auth.get('orgs', emptyList),
 )
 
 export const selectUserIsPremium = createSelector(

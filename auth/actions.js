@@ -2,7 +2,7 @@ import {
   LOGIN, LOGOUT, LOGIN_SUCCESS,
   REGISTER_USER, REGISTER_USER_SUCCESS,
   RESET_PASSWORD, RESET_PASSWORD_SUCCESS,
-  SET_USER_GROUPS,
+  SET_USER_GROUPS, SET_USER_ORGS,
   RESET_AUTH_API,
 } from './constants'
 import { requestError } from '../api/actions'
@@ -19,11 +19,15 @@ export const loginSuccess = (userId, email) => ({ type: LOGIN_SUCCESS, userId, e
 export const loginError = error => requestError('login', undefined, error)
 
 /*
-* User groups, jwt related.  NB: Explicitly set user groups to lowercase.
+* User groups and organisations, jwt related.  NB: Explicitly set to lowercase.
 */
 export const setUserGroups = groups => ({
   type: SET_USER_GROUPS,
   groups: groups.map(s => s.toLowerCase()),
+})
+export const setUserOrgs = orgs => ({
+  type: SET_USER_ORGS,
+  orgs: orgs.map(s => s.toLowerCase()),
 })
 
 /*

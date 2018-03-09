@@ -1,15 +1,15 @@
 import { takeEvery, delay, takeLatest } from 'redux-saga'
 import { put, call, select, race, cancel, fork } from 'redux-saga/effects'
-import jwtDecode from 'jwt-decode'
 import { fromJS, Map } from 'immutable'
 
 import { requestPending, requestSuccess, requestError, requestCacheUsed, setPollInterval } from './actions'
 import { REQUEST, POLL_REQUEST, REFRESH_JWT } from './constants'
 import { selectPollingInterval, selectTimeSinceLastFetch, selectResponse, selectPending } from './selectors'
 import { apifetch, formatUrl } from './utils'
-import { deserializeEJSON } from './eJSON'
-import { logout, setUserGroups } from '../auth/actions'
+import { logout } from '../auth/actions'
 import authEndpoints from '../auth/endpoints'
+import { extractJWTAndSaveInfo } from '../auth/utils'
+
 
 export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints, defaultParams = {}, defaultTimeout = 0 }) {
   function* refreshJWT() {
@@ -21,17 +21,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
 
       const email = oldToken.username
 
-      // Securely store login token
-      yield call(jwtStore.set, email, response.token)
-
-      const JWTokenDecoded = deserializeEJSON(jwtDecode(response.token))
-      const userGroups = JWTokenDecoded.aud
-      const userID = JWTokenDecoded.oid.oid
-
-      // Log the user in with Sentry too
-      Sentry.setUserContext({ email, userID, username: '', extra: {} })
-
-      yield put(setUserGroups(userGroups))
+      yield call(extractJWTAndSaveInfo, Sentry, jwtStore, email, response)
     }
     catch (error) {
       yield call(Sentry.captureException, error)

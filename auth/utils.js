@@ -32,7 +32,13 @@ export const getUserGroupsFromToken = token => decodeJWT(token).aud
 // Return only the strings as the org ID may also be in JWT but not required
 export const getUserOrgsFromToken = (token) => {
   const orgs = decodeJWT(token).orgs || []
-  return orgs.filter(org => typeof org === 'string')
+  const reducer = (orgNames, org) => {
+    org.forEach((orgAttr) => {
+      if (typeof orgAttr === 'string') orgNames.push(orgAttr)
+    })
+    return orgNames
+  }
+  return orgs.reduce(reducer, [])
 }
 
 export const isValidEmail = email => emailRX.test(email)

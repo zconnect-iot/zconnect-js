@@ -1,7 +1,7 @@
 import { call, put } from 'redux-saga/effects'
 import { takeLatest } from 'redux-saga'
 
-import { decodeJWT } from './utils'
+import { extractJWTAndSaveInfo } from './utils'
 import * as actions from './actions'
 import {
   LOGIN,
@@ -31,16 +31,8 @@ export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
       // Make call
       const response = yield call(apiSagas.apiRequest, { meta: { endpoint }, payload })
 
-      // Store token
-      yield call(jwtStore.set, action.email, response.token)
-      const JWTokenDecoded = decodeJWT(response.token)
-      const userID = JWTokenDecoded.oid.oid
+      const { userID } = yield call(extractJWTAndSaveInfo, Sentry, jwtStore, email, response)
 
-      // Log the user in with Sentry
-      Sentry.setUserContext({ email, userID, username: '', extra: {} })
-
-      const userGroups = JWTokenDecoded.aud
-      yield put(actions.setUserGroups(userGroups))
       yield put(actions.loginSuccess(userID, email))
     }
     catch (err) {

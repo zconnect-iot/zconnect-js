@@ -31,9 +31,9 @@ export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
       // Make call
       const response = yield call(apiSagas.apiRequest, { meta: { endpoint }, payload })
 
-      const { userID } = yield call(extractJWTAndSaveInfo, Sentry, jwtStore, email, response)
+      const jwtData = yield call(extractJWTAndSaveInfo, Sentry, jwtStore, email, response)
 
-      yield put(actions.loginSuccess(userID, email))
+      yield put(actions.loginSuccess(jwtData.user_id, jwtData.email, jwtData))
     }
     catch (err) {
       Sentry.captureException(err)

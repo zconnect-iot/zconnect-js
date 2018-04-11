@@ -23,11 +23,11 @@ export const selectEmail = createSelector(
 )
 export const selectUserGroups = createSelector(
   selectAuthDomain,
-  auth => auth.get('groups'),
+  auth => auth.getIn(['jwt', 'groups'], emptyList),
 )
 export const selectUserOrgs = createSelector(
   selectAuthDomain,
-  auth => auth.get('orgs', emptyList),
+  auth => auth.getIn(['jwt', 'orgs'], emptyList),
 )
 
 export const selectUserIsPremium = createSelector(

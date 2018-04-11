@@ -1,16 +1,16 @@
-import { fromJS } from 'immutable'
+import { fromJS, Map } from 'immutable'
 import {
-  LOGOUT, LOGIN_SUCCESS,
-  SET_USER_GROUPS, RESET_AUTH_API,
-  SET_USER_ORGS,
+  LOGOUT,
+  LOGIN_SUCCESS,
+  RESET_AUTH_API,
 } from './constants'
 
+const emptyMap = Map()
 
 export const initialState = {
   userId: null,
   email: null,
-  groups: [],
-  orgs: [],
+  jwt: {},
 }
 
 const _initialState = fromJS(initialState)
@@ -21,26 +21,17 @@ function authReducer(state = _initialState, action) {
       return state
         .set('userId', action.userId)
         .set('email', action.email)
+        .set('jwt', action.jwt)
 
     case LOGOUT:
       return state
         .set('userId', null)
-        .set('groups', fromJS([]))
-        .set('orgs', fromJS([]))
+        .set('jwt', emptyMap)
 
     case RESET_AUTH_API:
       return state
         .set('userId', null)
-        .set('groups', fromJS([]))
-        .set('orgs', fromJS([]))
-
-    case SET_USER_GROUPS:
-      return state
-        .set('groups', fromJS(action.groups))
-
-    case SET_USER_ORGS:
-      return state
-        .set('orgs', fromJS(action.orgs))
+        .set('jwt', emptyMap)
 
     default:
       return state

@@ -1,18 +1,18 @@
 const endpoints = {
   login: {
-    url: 'api/v1/users/login',
+    url: 'api/v3/login/',
     method: 'POST',
     token: false,
     cache: 0,
   },
   register: {
-    url: 'api/v1/users/signup',
+    url: 'api/v3/signup/',
     method: 'POST',
     token: false,
     cache: 0,
   },
   resetPassword: {
-    url: 'api/v1/users/reset_password',
+    url: 'api/v3/reset_password/',
     method: 'POST',
     token: false,
     cache: 0,

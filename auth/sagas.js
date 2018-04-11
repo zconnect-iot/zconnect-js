@@ -26,7 +26,7 @@ export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
     const endpoint = 'login'
     const email = (action.email || '').toLowerCase()
     const password = action.password || ''
-    const payload = { email, password }
+    const payload = { username: email, password }
     try {
       // Make call
       const response = yield call(apiSagas.apiRequest, { meta: { endpoint }, payload })

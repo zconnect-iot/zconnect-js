@@ -23,11 +23,11 @@ export function flattenObject(obj, name = '', separator = '_') {
 
 export const decodeJWT = token => deserializeEJSON(jwtDecode(token))
 
-export const getUserIdFromToken = token => decodeJWT(token).oid.oid
+export const getUserIdFromToken = token => decodeJWT(token).user_id
 
 export const getEmailFromToken = token => decodeJWT(token).email
 
-export const getUserGroupsFromToken = token => decodeJWT(token).aud
+export const getUserGroupsFromToken = token => decodeJWT(token).groups
 
 // Return only the strings as the org ID may also be in JWT but not required
 export const getUserOrgsFromToken = (token) => {

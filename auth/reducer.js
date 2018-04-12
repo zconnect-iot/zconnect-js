@@ -21,7 +21,7 @@ function authReducer(state = _initialState, action) {
       return state
         .set('userId', action.userId)
         .set('email', action.email)
-        .set('jwt', action.jwt)
+        .set('jwt', fromJS(action.jwt))
 
     case LOGOUT:
       return state

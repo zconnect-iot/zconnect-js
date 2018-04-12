@@ -1,12 +1,12 @@
 import { createSelector } from 'reselect'
-import { List } from 'immutable'
+import { List, Map } from 'immutable'
 import { selectAPIState, selectErrorObject } from '../api/selectors'
 
 const PREMIUM_USER_GROUP = 'premium_user'
 const BETA_USER_GROUP = 'beta'
 
 const emptyList = List()
-
+const emptyMap = Map()
 
 export const selectAuthDomain = state => state.get('auth')
 
@@ -17,17 +17,20 @@ export const selectUserId = createSelector(
   selectAuthDomain,
   auth => auth.get('userId'),
 )
+
 export const selectEmail = createSelector(
   selectAuthDomain,
   auth => auth.get('email'),
 )
-export const selectUserGroups = createSelector(
+
+export const selectJWT = createSelector(
   selectAuthDomain,
-  auth => auth.getIn(['jwt', 'groups'], emptyList),
+  auth => auth.get('jwt', emptyMap),
 )
-export const selectUserOrgs = createSelector(
-  selectAuthDomain,
-  auth => auth.getIn(['jwt', 'orgs'], emptyList),
+
+export const selectUserGroups = createSelector(
+  selectJWT,
+  jwt => jwt.get('groups', emptyList),
 )
 
 export const selectUserIsPremium = createSelector(

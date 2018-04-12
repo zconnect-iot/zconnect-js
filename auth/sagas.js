@@ -47,11 +47,11 @@ export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
       const endpoint = 'register'
       const email = (action.payload.email || '').toLowerCase()
       const password = action.payload.password || ''
-      const fname = action.payload.fname || ''
-      const lname = action.payload.lname || ''
+      const first_name = action.payload.first_name || ''
+      const last_name = action.payload.last_name || ''
       const user_type = action.payload.user_type || 'home' // user_type = ['home'|'business']
 
-      const payload = { fname, lname, email, password, user_type }
+      const payload = { first_name, last_name, email, password, user_type }
 
       yield call(apiSagas.apiRequest, { meta: { endpoint }, payload })
       yield put(actions.registerUserSuccess())

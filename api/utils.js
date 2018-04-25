@@ -18,7 +18,7 @@ export function apifetch({ baseURL, url, method = 'GET', payload = {}, token }) 
     mode: 'cors',
     cache: 'default',
   }
-  if (method.toLowerCase() === 'post') {
+  if (method.toLowerCase() !== 'get') {
     details.body = JSON.stringify(serializeEJSON(payload))
   }
   return fetch(fullUrl, details)

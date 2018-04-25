@@ -26,14 +26,14 @@ export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
     const endpoint = 'login'
     const email = (action.email || '').toLowerCase()
     const password = action.password || ''
-    const payload = { email, password }
+    const payload = { username: email, password }
     try {
       // Make call
       const response = yield call(apiSagas.apiRequest, { meta: { endpoint }, payload })
 
-      const { userID } = yield call(extractJWTAndSaveInfo, Sentry, jwtStore, email, response)
+      const jwtData = yield call(extractJWTAndSaveInfo, Sentry, jwtStore, email, response)
 
-      yield put(actions.loginSuccess(userID, email))
+      yield put(actions.loginSuccess(jwtData.user_id, jwtData.email, jwtData))
     }
     catch (err) {
       Sentry.captureException(err)
@@ -47,11 +47,11 @@ export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
       const endpoint = 'register'
       const email = (action.payload.email || '').toLowerCase()
       const password = action.payload.password || ''
-      const fname = action.payload.fname || ''
-      const lname = action.payload.lname || ''
+      const first_name = action.payload.first_name || ''
+      const last_name = action.payload.last_name || ''
       const user_type = action.payload.user_type || 'home' // user_type = ['home'|'business']
 
-      const payload = { fname, lname, email, password, user_type }
+      const payload = { first_name, last_name, email, password, user_type }
 
       yield call(apiSagas.apiRequest, { meta: { endpoint }, payload })
       yield put(actions.registerUserSuccess())

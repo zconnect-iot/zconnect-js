@@ -1,8 +1,13 @@
 import { createSelector } from 'reselect'
-import { Map, fromJS } from 'immutable'
+import { fromJS, Map } from 'immutable'
 import XDate from 'xdate'
 
+import { selectLocaleCode } from '../locale/selectors'
+import translations from '../locale/translations'
+
 export const selectAPIDomain = state => state.get('api')
+
+const emptyMap = Map()
 
 const selectEndpointFromProps = (_, props = {}) => props.endpoint
 
@@ -71,45 +76,40 @@ export const selectTimeSinceLastFetch = createSelector(
 
 export const selectResponse = createSelector(
   selectRequest,
-  request => request.get('response'),
+  request => request.get('response', emptyMap),
 )
 
 /*
 * Error selectors
 */
-export const selectErrorObject = createSelector(
+export const selectErrorResponse = createSelector(
   selectRequest,
-  request => request.get('error', Map()),
+  request => request.getIn(['error', 'response'], emptyMap),
 )
 
-export const selectErrorTitle = createSelector(
-  selectErrorObject,
-  error => error.get('title'),
+export const selectErrorStatus = createSelector(
+  selectErrorResponse,
+  error => error.get('status'),
 )
 
-export const selectErrorDescription = createSelector(
-  selectErrorObject,
-  error => error.get('description'),
+export const selectErrorJSON = createSelector(
+  selectErrorResponse,
+  error => error.get('json', emptyMap),
 )
 
-export const selectErrorResponseTitle = createSelector(
-  selectErrorObject,
-  error => error.getIn(['response', 'json', 'title']),
+export const selectErrorDetail = createSelector(
+  selectErrorJSON,
+  json => json.get('detail', ''),
 )
 
-export const selectErrorResponseDescription = createSelector(
-  selectErrorObject,
-  error => error.getIn(['response', 'json', 'description']),
+export const selectErrorCode = createSelector(
+  selectErrorJSON,
+  json => json.get('code', ''),
 )
 
-export const selectErrorResponseStatus = createSelector(
-  selectErrorObject,
-  error => error.getIn(['response', 'status']),
-)
-
-export const selectAPIErrorMessage = createSelector(
-  selectErrorResponseTitle,
-  selectErrorResponseDescription,
-  (title, description) => title && description ? `API Error - ${title} - ${description}` :
-    description || title || 'An unknown fetch error occurred'
+export const selectErrorMessage = createSelector(
+  selectErrorCode,
+  selectErrorDetail,
+  selectLocaleCode,
+  (code, detail, locale) => translations[locale][code] || detail || translations[locale].server,
 )

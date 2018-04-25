@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { List, Map } from 'immutable'
-import { selectAPIState, selectErrorResponse } from '../api/selectors'
+import { selectAPIState, selectErrorResponse, selectErrorMessage } from '../api/selectors'
 
 const PREMIUM_USER_GROUP = 'premium_user'
 const BETA_USER_GROUP = 'beta'
@@ -61,32 +61,6 @@ export const selectResetPasswordError = state => selectErrorResponse(state, { en
 
 // Error details
 
-export const selectLoginErrorMessage = createSelector(
-  selectLoginError,
-  (error) => {
-    const detail = error.getIn(['json', 'detail'])
-    const status = error.get('status')
-    if (detail === 'User has not confirmed their email') return 'emailconfirm'
-    if (status === 404 || status === 403) return 'invalid'
-    return detail || 'server'
-  },
-)
-
-export const selectRegisterErrorMessage = createSelector(
-  selectRegisterError,
-  (error) => {
-    const detail = error.getIn(['json', 'detail'])
-    if (detail === 'Error creating new user: The email provided is already in use') return 'emailinuse'
-    return detail || 'server'
-  },
-)
-
-export const selectForgottenPasswordErrorMessage = createSelector(
-  selectResetPasswordError,
-  (error) => {
-    const detail = error.getIn(['json', 'detail'])
-    const status = error.get('status')
-    if (status === 404) return 'emailnotfound'
-    return detail || 'server'
-  },
-)
+export const selectLoginErrorMessage = state => selectErrorMessage(state, { endpoint: 'login' })
+export const selectRegisterErrorMessage = state => selectErrorMessage(state, { endpoint: 'register' })
+export const selectForgottenPasswordErrorMessage = state => selectErrorMessage(state, { endpoint: 'resetPassword' })

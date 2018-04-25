@@ -2,6 +2,9 @@ import { createSelector } from 'reselect'
 import { fromJS, Map } from 'immutable'
 import XDate from 'xdate'
 
+import { selectLocaleCode } from '../locale/selectors'
+import translations from '../locale/translations'
+
 export const selectAPIDomain = state => state.get('api')
 
 const emptyMap = Map()
@@ -102,4 +105,11 @@ export const selectErrorDetail = createSelector(
 export const selectErrorCode = createSelector(
   selectErrorJSON,
   json => json.get('code', ''),
+)
+
+export const selectErrorMessage = createSelector(
+  selectErrorCode,
+  selectErrorDetail,
+  selectLocaleCode,
+  (code, detail, locale) => translations[locale][code] || detail || translations[locale].server,
 )

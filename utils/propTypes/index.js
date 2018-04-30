@@ -19,3 +19,12 @@ export const zcApiShapeJS = PropTypes.shape({
 export const objectId = PropTypes.shape({
   oid: PropTypes.string.isRequired,
 })
+
+export const addressShape = PropTypes.shape({
+  street_address: PropTypes.string,
+  locality: PropTypes.string,
+  region: PropTypes.string,
+  poboxno: PropTypes.string,
+  postalcode: PropTypes.string,
+  country: PropTypes.string,
+})

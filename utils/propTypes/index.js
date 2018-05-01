@@ -20,7 +20,11 @@ export const objectId = PropTypes.shape({
   oid: PropTypes.string.isRequired,
 })
 
-export const addressShape = PropTypes.shape({
+export const locationShape = PropTypes.shape({
+  name: PropTypes.string,
+  latitude: PropTypes.number,
+  longitude: PropTypes.number,
+  timezone: PropTypes.string,
   street_address: PropTypes.string,
   locality: PropTypes.string,
   region: PropTypes.string,

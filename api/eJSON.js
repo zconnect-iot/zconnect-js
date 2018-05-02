@@ -122,7 +122,9 @@ export function deserializeEJSON(data) {
   const caster = deserializeMap[keys[0]]
   if (!caster) {
     return keys.reduce((schema, key) => {
-      schema[key] = deserializeEJSON(data[key])
+      // TODO: Remove when api returns id's as strings
+      if (key === 'id') schema.id = data.id.toString()
+      else schema[key] = deserializeEJSON(data[key])
       return schema
     }, {})
   }
@@ -149,7 +151,9 @@ export function serializeEJSON(data) {
     }
 
     return Object.keys(data).reduce((acc, key) => {
-      acc[key] = serializeEJSON(data[key])
+      // TODO: Remove when api returns id's as strings
+      if (key === 'id') acc.id = +data.id
+      else acc[key] = serializeEJSON(data[key])
       return acc
     }, {})
   }

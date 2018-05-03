@@ -54,13 +54,16 @@ export const selectUserLoggedIn = createSelector(
 export const selectLoginAPIState = state => selectAPIState(state, { endpoint: 'login' })
 export const selectRegisterAPIState = state => selectAPIState(state, { endpoint: 'register' })
 export const selectResetPasswordAPIState = state => selectAPIState(state, { endpoint: 'resetPassword' })
+export const selectResetPasswordConfirmAPIState = state => selectAPIState(state, { endpoint: 'resetPasswordConfirm' })
 
 export const selectLoginError = state => selectErrorResponse(state, { endpoint: 'login' })
 export const selectRegisterError = state => selectErrorResponse(state, { endpoint: 'register' })
 export const selectResetPasswordError = state => selectErrorResponse(state, { endpoint: 'resetPassword' })
+export const selectResetPasswordConfirmError = state => selectErrorResponse(state, { endpoint: 'resetPasswordConfirm' })
 
 // Error details
 
 export const selectLoginErrorMessage = state => selectErrorMessage(state, { endpoint: 'login' })
 export const selectRegisterErrorMessage = state => selectErrorMessage(state, { endpoint: 'register' })
-export const selectForgottenPasswordErrorMessage = state => selectErrorMessage(state, { endpoint: 'resetPassword' })
+export const selectResetPasswordErrorMessage = state => selectErrorMessage(state, { endpoint: 'resetPassword' })
+export const selectResetPasswordConfirmErrorMessage = state => selectErrorMessage(state, { endpoint: 'resetPasswordConfirm' })

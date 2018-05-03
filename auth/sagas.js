@@ -8,6 +8,7 @@ import {
   LOGOUT,
   REGISTER_USER,
   RESET_PASSWORD,
+  RESET_PASSWORD_CONFIRM,
 } from './constants'
 
 export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
@@ -80,11 +81,25 @@ export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
     }
   }
 
+  function* resetPasswordConfirmSaga({ payload }) {
+    try {
+      const endpoint = 'resetPasswordConfirm'
+
+      yield call(apiSagas.apiRequest, { meta: { endpoint }, payload })
+      yield put(actions.resetPasswordConfirmSuccess())
+    }
+    catch (error) {
+      Sentry.captureException(error)
+      yield put(actions.resetPasswordConfirmError(error))
+    }
+  }
+
   function* watcher() {
     yield [
       takeLatest(LOGIN, loginSaga),
       takeLatest(LOGOUT, logoutSaga),
       takeLatest(RESET_PASSWORD, resetPasswordSaga),
+      takeLatest(RESET_PASSWORD_CONFIRM, resetPasswordConfirmSaga),
       takeLatest(REGISTER_USER, registerUserSaga),
     ]
   }

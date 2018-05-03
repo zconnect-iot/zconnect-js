@@ -2,6 +2,7 @@ import {
   LOGIN, LOGOUT, LOGIN_SUCCESS,
   REGISTER_USER, REGISTER_USER_SUCCESS,
   RESET_PASSWORD, RESET_PASSWORD_SUCCESS,
+  RESET_PASSWORD_CONFIRM, RESET_PASSWORD_CONFIRM_SUCCESS,
   RESET_AUTH_API,
 } from './constants'
 import { requestError } from '../api/actions'
@@ -30,3 +31,10 @@ export const registerUserError = error => requestError('register', undefined, er
 export const resetPassword = payload => ({ type: RESET_PASSWORD, payload })
 export const resetPasswordSuccess = () => ({ type: RESET_PASSWORD_SUCCESS })
 export const resetPasswordError = error => requestError('resetPassword', undefined, error)
+
+/*
+* Reset Password Confirmation
+*/
+export const resetPasswordConfirm = payload => ({ type: RESET_PASSWORD_CONFIRM, payload })
+export const resetPasswordConfirmSuccess = () => ({ type: RESET_PASSWORD_CONFIRM_SUCCESS })
+export const resetPasswordConfirmError = error => requestError('resetPasswordConfirm', undefined, error)

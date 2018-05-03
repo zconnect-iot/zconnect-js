@@ -12,7 +12,13 @@ const endpoints = {
     cache: 0,
   },
   resetPassword: {
-    url: 'api/v3/auth/password_reset/',
+    url: 'api/v3/auth/password/',
+    method: 'POST',
+    token: false,
+    cache: 0,
+  },
+  resetPasswordConfirm: {
+    url: 'api/v3/auth/password/confirm',
     method: 'POST',
     token: false,
     cache: 0,

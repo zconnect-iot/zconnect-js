@@ -44,7 +44,7 @@
   "emailconfirm": "You must follow the link in the confirmation email",
   "resetpassword": "Reset Password",
   "success": "Successful Reset",
-  "emailsent": "You should receive an E-mail shortly. Follow the link in to reset your password.",
+  "emailsent": "You should receive an E-mail shortly. Follow the link to reset your password.",
   "emailnotfound": "Email not found",
   "verifyemail": "Please verify your address is correct or register a new account.",
   "firstname": "First Name",

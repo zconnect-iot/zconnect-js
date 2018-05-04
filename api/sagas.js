@@ -13,7 +13,7 @@ import { extractJWTAndSaveInfo } from '../auth/utils'
 
 export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints, defaultParams = {}, defaultTimeout = 0 }) {
   function* refreshJWT() {
-    const url = 'api/v3/auth/refresh/'
+    const url = 'api/v3/auth/refresh_token/'
     const method = 'POST'
     try {
       const oldToken = yield call(jwtStore.get)

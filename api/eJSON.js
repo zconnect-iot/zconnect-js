@@ -152,7 +152,7 @@ export function serializeEJSON(data) {
 
     return Object.keys(data).reduce((acc, key) => {
       // TODO: Remove when api returns id's as strings
-      if (key === 'id') acc.id = +data.id
+      if (key === 'id') acc.id = parseInt(data.id, 10) ? parseInt(data.id, 10) : data.id
       else acc[key] = serializeEJSON(data[key])
       return acc
     }, {})

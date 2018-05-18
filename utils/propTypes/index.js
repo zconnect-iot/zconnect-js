@@ -32,3 +32,10 @@ export const locationShape = PropTypes.shape({
   postalcode: PropTypes.string,
   country: PropTypes.string,
 })
+
+export const emptyString = (props, propName, componentName) => {
+  if (props[propName] !== '') return new Error(
+    `Invalid prop ${propName} supplied to ${componentName}. Expected empty string.`
+  )
+  return undefined
+}

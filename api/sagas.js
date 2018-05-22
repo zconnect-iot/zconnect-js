@@ -1,5 +1,5 @@
 import { takeEvery, delay, takeLatest } from 'redux-saga'
-import { put, call, select, race, cancel, fork } from 'redux-saga/effects'
+import { put, all, call, select, race, cancel, fork } from 'redux-saga/effects'
 import { fromJS, Map } from 'immutable'
 
 import { requestPending, requestSuccess, requestError, requestCacheUsed, setPollInterval } from './actions'
@@ -164,6 +164,14 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     }
   }
 
+  function* apiBatchRequest(action) {
+    yield all(action.payload.map(
+      ({ payload, meta }) => call(apiRequest, { payload, meta })),
+    )
+    
+
+  }
+
   /*
     To mirror the reducer in that, for a given request key ({ endpoint, params } or storeKey)
     there is only one api state, response, error and polling state associated with that request
@@ -188,6 +196,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     yield [
       takeEvery(POLL_REQUEST, forkApiPoll),
       takeEvery(REQUEST, apiRequest),
+      takeEvery(BATCH_REQUEST, apiBatchRequest),
       takeLatest(REFRESH_JWT, refreshJWT),
     ]
   }

@@ -1,4 +1,5 @@
 import {
+  BATCH_REQUEST,
   REQUEST,
   REQUEST_PENDING,
   REQUEST_SUCCESS,
@@ -54,6 +55,14 @@ export const apiRequest = (endpoint, params = {}, payload = {}) => ({
   meta: {
     endpoint,
     params,
+  },
+  payload,
+})
+
+export const apiBatchRequest = (id, payload = []) => ({
+  type: REQUEST,
+  meta: {
+    id,
   },
   payload,
 })

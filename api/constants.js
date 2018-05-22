@@ -1,4 +1,5 @@
 // Saga triggers
+export const BATCH_REQUEST = 'core/api/BATCH_REQUEST'
 export const REQUEST = 'core/api/REQUEST'
 export const POLL_REQUEST = 'core/api/POLL_REQUEST'
 export const REFRESH_JWT = 'core/auth/REFRESH_JWT'

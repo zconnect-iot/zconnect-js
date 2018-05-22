@@ -1,5 +1,7 @@
 import {
   BATCH_REQUEST,
+  BATCH_REQUEST_SUCCESS,
+  BATCH_REQUEST_FAILED,
   REQUEST,
   REQUEST_PENDING,
   REQUEST_SUCCESS,
@@ -59,12 +61,26 @@ export const apiRequest = (endpoint, params = {}, payload = {}) => ({
   payload,
 })
 
-export const apiBatchRequest = (id, payload = []) => ({
-  type: REQUEST,
+export const apiBatchRequest = (id, payload = {}) => ({
+  type: BATCH_REQUEST,
   meta: {
     id,
   },
   payload,
+})
+
+export const batchRequestSuccess = id => ({
+  type: BATCH_REQUEST_SUCCESS,
+  meta: {
+    id,
+  },
+})
+
+export const batchRequestFailed = id => ({
+  type: BATCH_REQUEST_FAILED,
+  meta: {
+    id,
+  },
 })
 
 export const requestCacheUsed = (endpoint, params = {}, storeKey) => ({

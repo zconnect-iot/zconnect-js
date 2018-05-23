@@ -165,6 +165,10 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   }
 
   function* apiBatchRequest(action) {
+    /*
+      Convert the map of actions to a map of call side effect wrapped actions but
+      without the type key so that any errors are thrown (see line 141)
+    */
     const requests = Object.entries(action.payload).reduce(
       (reqs, [key, { payload, meta }]) => ({
         ...reqs,
@@ -174,10 +178,10 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     )
     try {
       yield all(requests)
-      yield put(batchRequestSuccess(action.meta.id))
+      yield put(batchRequestSuccess(action.meta.storeKey))
     }
     catch (e) {
-      yield put(batchRequestFailed(action.meta.id))
+      yield put(batchRequestFailed(action.meta.storeKey, e))
     }
   }
 

@@ -71,10 +71,6 @@ export default function requestReducer(state = fromJS({}), action) {
       return state
         .setIn([request, 'polling'], action.meta.interval)
 
-    // case STOP_POLL_REQUEST:
-    //   return state
-    //     .setIn([request, 'polling'], false)
-
     case RESET_AUTH_API:
       return state
         .setIn([fromJS({ endpoint: 'login', params: {} }), 'state'], apiStates.get('initial'))
@@ -83,19 +79,22 @@ export default function requestReducer(state = fromJS({}), action) {
 
     case BATCH_REQUEST:
       return state
-        .setIn(['batch', action.meta.id, 'pending'], true)
-        .setIn(['batch', action.meta.id, 'success'], false)
-        .setIn(['batch', action.meta.id, 'error'], false)
+        .setIn([request, 'state', 'pending'], true)
+        .setIn([request, 'state', 'success'], false)
+        .setIn([request, 'state', 'error'], false)
 
     case BATCH_REQUEST_SUCCESS:
       return state
-        .setIn(['batch', action.meta.id, 'pending'], false)
-        .setIn(['batch', action.meta.id, 'success'], true)
+        .setIn([request, 'state', 'pending'], false)
+        .setIn([request, 'state', 'success'], true)
 
     case BATCH_REQUEST_FAILED:
       return state
-        .setIn(['batch', action.meta.id, 'pending'], false)
-        .setIn(['batch', action.meta.id, 'error'], true)
+        .setIn([request, 'state', 'pending'], false)
+        .setIn([request, 'state', 'error'], true)
+        .setIn([request, 'error'], fromJS(transformError(action.payload)))
+    // The error stored here will be a duplicate of the one stored for the specific request
+    // that caused it
 
     default:
       return state

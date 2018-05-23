@@ -61,26 +61,27 @@ export const apiRequest = (endpoint, params = {}, payload = {}) => ({
   payload,
 })
 
-export const apiBatchRequest = (id, payload = {}) => ({
+export const apiBatchRequest = (storeKey, payload = {}) => ({
   type: BATCH_REQUEST,
   meta: {
-    id,
+    storeKey,
   },
   payload,
 })
 
-export const batchRequestSuccess = id => ({
+export const batchRequestSuccess = storeKey => ({
   type: BATCH_REQUEST_SUCCESS,
   meta: {
-    id,
+    storeKey,
   },
 })
 
-export const batchRequestFailed = id => ({
+export const batchRequestFailed = (storeKey, error) => ({
   type: BATCH_REQUEST_FAILED,
   meta: {
-    id,
+    storeKey,
   },
+  payload: error,
 })
 
 export const requestCacheUsed = (endpoint, params = {}, storeKey) => ({

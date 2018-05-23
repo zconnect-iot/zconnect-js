@@ -1,9 +1,9 @@
 import { takeEvery, delay, takeLatest } from 'redux-saga'
-import { put, call, select, race, cancel, fork } from 'redux-saga/effects'
+import { put, all, call, select, race, cancel, fork } from 'redux-saga/effects'
 import { fromJS, Map } from 'immutable'
 
-import { requestPending, requestSuccess, requestError, requestCacheUsed, setPollInterval } from './actions'
-import { REQUEST, POLL_REQUEST, REFRESH_JWT } from './constants'
+import { requestPending, requestSuccess, requestError, requestCacheUsed, setPollInterval, batchRequestSuccess, batchRequestFailed } from './actions'
+import { BATCH_REQUEST, REQUEST, POLL_REQUEST, REFRESH_JWT } from './constants'
 import { selectPollingInterval, selectTimeSinceLastFetch, selectResponse, selectPending } from './selectors'
 import { apifetch, formatUrl } from './utils'
 import { logout } from '../auth/actions'
@@ -164,6 +164,27 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     }
   }
 
+  function* apiBatchRequest(action) {
+    /*
+      Convert the map of actions to a map of call side effect wrapped actions but
+      without the type key so that any errors are thrown (see line 141)
+    */
+    const requests = Object.entries(action.payload).reduce(
+      (reqs, [key, { payload, meta }]) => ({
+        ...reqs,
+        [key]: call(apiRequest, { payload, meta }),
+      }),
+      {},
+    )
+    try {
+      yield all(requests)
+      yield put(batchRequestSuccess(action.meta.storeKey))
+    }
+    catch (e) {
+      yield put(batchRequestFailed(action.meta.storeKey, e))
+    }
+  }
+
   /*
     To mirror the reducer in that, for a given request key ({ endpoint, params } or storeKey)
     there is only one api state, response, error and polling state associated with that request
@@ -188,6 +209,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     yield [
       takeEvery(POLL_REQUEST, forkApiPoll),
       takeEvery(REQUEST, apiRequest),
+      takeEvery(BATCH_REQUEST, apiBatchRequest),
       takeLatest(REFRESH_JWT, refreshJWT),
     ]
   }

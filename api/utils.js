@@ -9,7 +9,9 @@ export function getHeaders(token) {
   return headers
 }
 
-export function apifetch({ baseURL, url, method = 'GET', payload = {}, token }) {
+export function apifetch({
+  baseURL, url, method = 'GET', payload = {}, token,
+}) {
   const fullUrl = `${baseURL}/${url}`
   const headers = getHeaders(token)
   const details = {
@@ -18,18 +20,22 @@ export function apifetch({ baseURL, url, method = 'GET', payload = {}, token }) 
     mode: 'cors',
     cache: 'default',
   }
-  if (method.toLowerCase() !== 'get') {
+  if (method.toLowerCase() !== 'get')
     details.body = JSON.stringify(serializeEJSON(payload))
-  }
+
   return fetch(fullUrl, details)
     .then((response) => {
-      const { status, ok, type, statusText } = response
+      const {
+        status, ok, type, statusText,
+      } = response
       if (response.status === 204) return {} // 204 is no content code
       if (response.json) return response.json()
         .then(json => deserializeEJSON(json))
         .then((json) => {
           if (response.ok) return json
-          throw new APIError({ status, statusText, json, ok, type, url: response.url })
+          throw new APIError({
+            status, statusText, json, ok, type, url: response.url,
+          })
         })
       if (!response.ok) throw new APIError({
         ...response,

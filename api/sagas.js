@@ -11,7 +11,9 @@ import authEndpoints from '../auth/endpoints'
 import { extractJWTAndSaveInfo } from '../auth/utils'
 
 
-export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints, defaultParams = {}, defaultTimeout = 0 }) {
+export default function configureApiSagas({
+  Sentry, jwtStore, baseURL, endpoints, defaultParams = {}, defaultTimeout = 0,
+}) {
   function* refreshJWT() {
     const url = 'api/v3/auth/refresh_token/'
     const method = 'POST'
@@ -57,13 +59,13 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     let token = ''
     try {
       token = yield call(jwtStore.get)
-       // if token undefined next line will be a reference error
+      // if token undefined next line will be a reference error
       return yield call(secureFetch, args)
     }
     catch (error) {
       const status = error.response && error.response.status
-      if (!token || status === 401 || status === 403) {
-        try {  // First try to get a new token and reperform request.
+      if (!token || status === 401 || status === 403)
+        try { // First try to get a new token and reperform request.
           yield call(refreshJWT)
           return yield call(secureFetch, args)
         }
@@ -71,7 +73,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
           Sentry.captureMessage('Could not perform request after re-fetching JWT')
           yield put(logout())
         }
-      }
+
       throw error
     }
   }
@@ -80,9 +82,9 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   function* processParams(params = {}) {
     const selectors = Object.entries(params).filter(param => typeof param[1] === 'function')
     const p = { ...params }
-    for (let i = 0; i < selectors.length; i += 1) {
+    for (let i = 0; i < selectors.length; i += 1)
       p[selectors[i][0]] = yield select(selectors[i][1])
-    }
+
     return p
   }
 
@@ -90,9 +92,9 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     // TODO: Allow processing of nested selectors (currently only handles selectors at top level)
     const selectors = Object.entries(payload).filter(entry => typeof entry[1] === 'function')
     const p = { ...payload }
-    for (let i = 0; i < selectors.length; i += 1) {
+    for (let i = 0; i < selectors.length; i += 1)
       p[selectors[i][0]] = yield select(selectors[i][1])
-    }
+
     return p
   }
 
@@ -124,15 +126,17 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     try {
       let response = yield call(
         method,
-        { url, method: config.method, payload, timeout: config.timeout },
+        {
+          url, method: config.method, payload, timeout: config.timeout,
+        },
       )
-      if (config.storeMethod) {
+      if (config.storeMethod)
         response = config.storeMethod(
           yield select(selectResponse, requestKey),
           fromJS(response),
           params,
         )
-      }
+
       yield put(requestSuccess(endpoint, params, response, config.storeKey))
       return response
     }
@@ -149,7 +153,7 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
     const requestKey = { endpoint, params, storeKey }
     let interval = action.meta.interval
     yield put(setPollInterval(endpoint, params, interval, storeKey))
-    while (interval) {
+    while (interval)
       try {
         const isPending = yield select(selectPending, requestKey)
         if (!isPending) yield call(apiRequest, action)
@@ -161,7 +165,6 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
         yield put(setPollInterval(endpoint, params, interval, storeKey))
         Sentry.captureMessage(`Polling endpoint, ${action.meta.endpoint}, returned an error. Polling will be stopped.`)
       }
-    }
   }
 
   function* apiBatchRequest(action) {

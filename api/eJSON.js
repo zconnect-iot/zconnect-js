@@ -36,9 +36,8 @@ export class UUID {
 }
 
 export function displayDate(date) {
-  if (date) {
+  if (date)
     return date.toISOString().slice(0, 10).replace(/-/g, '/')
-  }
 }
 
 // Can be used for any object which don't have a serializeEJSON method on the
@@ -85,9 +84,9 @@ const deserializeMap = {
   $date(val) {
     let d = new XDate()
     // Kernel bug.  See #2 http://git.io/AEbmFg
-    if (isNaN(d.setTime(val.$date))) {
+    if (isNaN(d.setTime(val.$date)))
       d = new XDate(val.$date)
-    }
+
 
     return d
   },
@@ -103,52 +102,51 @@ const deserializeMap = {
 }
 
 export function deserializeEJSON(data) {
-  if (Array.isArray(data)) {
+  if (Array.isArray(data))
     return data.map(deserializeEJSON)
-  }
-  if (typeof data !== 'object') {
-    return data
-  }
 
-  if (data === null) {
+  if (typeof data !== 'object')
     return data
-  }
+
+
+  if (data === null)
+    return data
+
 
   const keys = Object.keys(data)
-  if (keys.length === 0) {
+  if (keys.length === 0)
     return data
-  }
+
 
   const caster = deserializeMap[keys[0]]
-  if (!caster) {
+  if (!caster)
     return keys.reduce((schema, key) => {
       // TODO: Remove when api returns id's as strings
       if (key === 'id') schema.id = data.id.toString()
       else schema[key] = deserializeEJSON(data[key])
       return schema
     }, {})
-  }
+
 
   return caster(data)
 }
 
 export function serializeEJSON(data) {
   if (data) {
-    if (Array.isArray(data)) {
+    if (Array.isArray(data))
       return data.map(serializeEJSON)
-    }
-    if (typeof data !== 'object') {
-      return data
-    }
-    if (isFunction(data.serializeToEJSON)) {
-      return data.serializeToEJSON()
-    }
 
-    for (const key in typesToSerialize) {
-      if (GetInstanceType(data) === key) {
+    if (typeof data !== 'object')
+      return data
+
+    if (isFunction(data.serializeToEJSON))
+      return data.serializeToEJSON()
+
+
+    for (const key in typesToSerialize)
+      if (GetInstanceType(data) === key)
         return typesToSerialize[key](data)
-      }
-    }
+
 
     return Object.keys(data).reduce((acc, key) => {
       // TODO: Remove when api returns id's as strings

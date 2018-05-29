@@ -48,8 +48,9 @@ const deps = {
 const apiSagas = configureApiSagas(deps)
 
 describe('API Sagas', () => {
-
-  const { secureFetch, fetchSaga, secureApiSaga, apiRequest, processParams, processPayload, insecureFetch, refreshJWT } = apiSagas
+  const {
+    secureFetch, fetchSaga, secureApiSaga, apiRequest, processParams, processPayload, insecureFetch, refreshJWT,
+  } = apiSagas
 
   describe('configureApiSagas()', () => {
     it('should return an object', () => {
@@ -64,7 +65,6 @@ describe('API Sagas', () => {
   })
 
   describe('secureFetch', () => {
-
     const args = ['arg1', 'arg2', 'arg3']
 
     it('should call jwtStore.get for the jwt token', () => {
@@ -83,7 +83,7 @@ describe('API Sagas', () => {
     it('should return the result of fetch (if successful)', () => {
       const saga = secureFetch(...args)
       const password = Symbol()
-      const response = { some: { data: Symbol() }}
+      const response = { some: { data: Symbol() } }
       saga.next()
       saga.next({ password })
       expect(saga.next(response).value)
@@ -106,7 +106,6 @@ describe('API Sagas', () => {
   })
 
   describe('secureApiSaga', () => {
-
     const args = ['api/v1/test', 'GET', {}]
 
     it('should call jwtStore.get for the jwt token', () => {
@@ -124,7 +123,7 @@ describe('API Sagas', () => {
     it('should return the result of fetch (if successful)', () => {
       const saga = secureApiSaga(...args)
       const password = Symbol()
-      const response = { some: { data: Symbol() }}
+      const response = { some: { data: Symbol() } }
       saga.next()
       saga.next({ password })
       expect(saga.next(response).value)
@@ -148,7 +147,7 @@ describe('API Sagas', () => {
       it('should call refresh token saga and repeat request if no token stored', () => {
         const saga = secureApiSaga(...args)
         saga.next()
-        saga.next()  // No JWT token returned by get
+        saga.next() // No JWT token returned by get
         expect(saga.throw(new Error("Can't find property 'password' of undefined (Or something)")).value)
           .to.be.deep.equal(call(refreshJWT))
       })
@@ -187,7 +186,6 @@ describe('API Sagas', () => {
   })
 
   describe('processParams', () => {
-
     it('returns non selector values as defined in the input', () => {
       const params = { a: 1, b: 2, c: 3 }
       const saga = processParams(params)
@@ -195,7 +193,7 @@ describe('API Sagas', () => {
     })
 
     it("yield selects all params that are of type 'function', replacing with resulting value", () => {
-      const params = { a: 1, b: () => {}, c: 3}
+      const params = { a: 1, b: () => {}, c: 3 }
       const selectB = Symbol()
       const saga = processParams(params)
       expect(saga.next().value).to.deep.equal(select(params.b))
@@ -204,7 +202,6 @@ describe('API Sagas', () => {
   })
 
   describe('processPayload', () => {
-
     it('returns non selector values as defined in the input', () => {
       const params = { a: 1, b: 2, c: 3 }
       const saga = processPayload(params)
@@ -212,7 +209,7 @@ describe('API Sagas', () => {
     })
 
     it("yield selects all params that are of type 'function', replacing with resulting value", () => {
-      const params = { a: 1, b: () => {}, c: 3}
+      const params = { a: 1, b: () => {}, c: 3 }
       const selectB = Symbol()
       const saga = processPayload(params)
       expect(saga.next().value).to.deep.equal(select(params.b))
@@ -221,7 +218,6 @@ describe('API Sagas', () => {
   })
 
   describe('apiRequest', () => {
-
     const makeAction = ({
       params = {},
       endpoint = 'getDevices',
@@ -274,7 +270,9 @@ describe('API Sagas', () => {
         saga.next({})
         saga.next(formattedUrl)
         expect(saga.next().value)
-          .to.be.deep.equal(call(secureApiSaga, { url: formattedUrl, method: 'GET', payload: {}, timeout: undefined }))
+          .to.be.deep.equal(call(secureApiSaga, {
+            url: formattedUrl, method: 'GET', payload: {}, timeout: undefined,
+          }))
       })
 
       it('should call insecureFetch if config.token is false', () => {
@@ -285,7 +283,9 @@ describe('API Sagas', () => {
         saga.next({})
         saga.next(formattedUrl)
         expect(saga.next().value)
-          .to.be.deep.equal(call(insecureFetch, { url: formattedUrl, method: 'POST', payload: {}, timeout: undefined }))
+          .to.be.deep.equal(call(insecureFetch, {
+            url: formattedUrl, method: 'POST', payload: {}, timeout: undefined,
+          }))
       })
     })
 
@@ -294,7 +294,7 @@ describe('API Sagas', () => {
         const saga = apiRequest(makeAction({ endpoint: 'secureGet' }))
         const processedParams = Symbol()
         const formattedUrl = Symbol()
-        const response = { some: { server: 'response' }}
+        const response = { some: { server: 'response' } }
         saga.next()
         saga.next(processedParams)
         saga.next()
@@ -308,7 +308,7 @@ describe('API Sagas', () => {
         const saga = apiRequest(makeAction({ endpoint: 'secureGet' }))
         const processedParams = Symbol()
         const formattedUrl = Symbol()
-        const response = { some: { server: 'response' }}
+        const response = { some: { server: 'response' } }
         saga.next()
         saga.next(processedParams)
         saga.next()
@@ -396,7 +396,7 @@ describe('API Sagas', () => {
         const endpoint = 'cache10000'
         const saga = apiRequest(makeAction({ endpoint }))
         const processedParams = Symbol()
-        const cachedResponse = { some: { server: 'response' }}
+        const cachedResponse = { some: { server: 'response' } }
         const timeSinceLastFetch = 9999
         saga.next()
         saga.next(processedParams)
@@ -411,7 +411,7 @@ describe('API Sagas', () => {
         const endpoint = 'cache10000'
         const saga = apiRequest(makeAction({ endpoint }))
         const processedParams = Symbol()
-        const cachedResponse = { some: { server: 'response' }}
+        const cachedResponse = { some: { server: 'response' } }
         const timeSinceLastFetch = 10001
         saga.next()
         saga.next(processedParams)

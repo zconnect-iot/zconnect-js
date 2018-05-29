@@ -15,7 +15,9 @@ export const resetAuthApi = () => ({ type: RESET_AUTH_API })
 * LoginActions
 */
 export const login = (email, password) => ({ type: LOGIN, email, password })
-export const loginSuccess = (userId, email, jwt) => ({ type: LOGIN_SUCCESS, userId, email, jwt })
+export const loginSuccess = (userId, email, jwt) => ({
+  type: LOGIN_SUCCESS, userId, email, jwt,
+})
 export const loginError = error => requestError('login', undefined, error)
 
 /*

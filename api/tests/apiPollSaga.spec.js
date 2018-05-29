@@ -49,7 +49,6 @@ const makeAction = ({
 } = {}) => ({ type, meta: { params, endpoint, interval }, payload })
 
 describe('API Sagas', () => {
-
   describe('apiPoll', () => {
     const { apiPoll, apiRequest } = apiSagas
 
@@ -73,7 +72,7 @@ describe('API Sagas', () => {
       const endpoint = Symbol()
       const params = Symbol()
       const interval = 1000
-      const saga = apiPoll( makeAction({ interval, endpoint, params }))
+      const saga = apiPoll(makeAction({ interval, endpoint, params }))
       saga.next()
       saga.next()
       expect(saga.next().value)
@@ -84,7 +83,7 @@ describe('API Sagas', () => {
       const endpoint = Symbol()
       const params = Symbol()
       const interval = 1000
-      const action =  makeAction({ interval, endpoint, params })
+      const action = makeAction({ interval, endpoint, params })
       const saga = apiPoll(action)
 
       saga.next() // Request
@@ -104,7 +103,7 @@ describe('API Sagas', () => {
       const endpoint = 'getDevices'
       const params = Symbol()
       const interval = 1000
-      const action =  makeAction({ interval, endpoint, params })
+      const action = makeAction({ interval, endpoint, params })
       const saga = apiPoll(action)
 
       saga.next() // Request

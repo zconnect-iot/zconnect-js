@@ -38,7 +38,9 @@ export function* extractJWTAndSaveInfo(Sentry, jwtStore, email, response) {
   const userID = getUserIdFromToken(token)
 
   // Log the user in with Sentry too
-  Sentry.setUserContext({ email, userID, username: '', extra: {} })
+  Sentry.setUserContext({
+    email, userID, username: '', extra: {},
+  })
 
   return decodeJWT(token)
 }

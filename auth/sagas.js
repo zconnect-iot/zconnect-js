@@ -1,5 +1,4 @@
-import { call, put } from 'redux-saga/effects'
-import { takeLatest } from 'redux-saga/effects'
+import { call, put, all, takeLatest } from 'redux-saga/effects'
 
 import { extractJWTAndSaveInfo } from './utils'
 import * as actions from './actions'
@@ -95,13 +94,13 @@ export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
   }
 
   function* watcher() {
-    yield [
+    yield all([
       takeLatest(LOGIN, loginSaga),
       takeLatest(LOGOUT, logoutSaga),
       takeLatest(RESET_PASSWORD, resetPasswordSaga),
       takeLatest(RESET_PASSWORD_CONFIRM, resetPasswordConfirmSaga),
       takeLatest(REGISTER_USER, registerUserSaga),
-    ]
+    ])
   }
 
   return {

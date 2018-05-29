@@ -169,11 +169,9 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
       Convert the list of actions to a list of call side effect wrapped actions but
       without the type key so that any errors are thrown (see line 141)
     */
-    const requests = action.payload.map(
-      (reqs, { payload, meta }) => call(apiRequest, { payload, meta }),
-      [],
-    )
     try {
+      const requests = action.payload.map(({ payload, meta }) =>
+        call(apiRequest, { payload, meta }))
       yield all(requests)
       yield put(batchRequestSuccess(action.meta.storeKey))
     }
@@ -203,12 +201,12 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   }
 
   function* watcher() {
-    yield [
+    yield all([
       takeEvery(POLL_REQUEST, forkApiPoll),
       takeEvery(REQUEST, apiRequest),
       takeEvery(BATCH_REQUEST, apiBatchRequest),
       takeLatest(REFRESH_JWT, refreshJWT),
-    ]
+    ])
   }
 
   return {

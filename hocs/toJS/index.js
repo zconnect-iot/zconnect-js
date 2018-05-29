@@ -8,7 +8,9 @@ const toJS = WrappedComponent => (wrappedComponentProps) => {
   const propsJS = Object
     .entries(wrappedComponentProps)
     .reduce((newProps, wrappedComponentProp) => {
-      newProps[wrappedComponentProp[KEY]] = Iterable.isIterable(wrappedComponentProp[VALUE])
+      newProps[wrappedComponentProp[KEY]] = Iterable.isIterable(
+        wrappedComponentProp[VALUE]
+      )
         ? wrappedComponentProp[VALUE].toJS()
         : wrappedComponentProp[VALUE]
       return newProps

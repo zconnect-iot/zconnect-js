@@ -2,6 +2,7 @@ import * as eJSON from '../eJSON'
 import { apifetch, formatUrl } from '../utils'
 
 describe('UTILS', () => {
+
   describe('apifetch', () => {
     let sandbox
     let serializeEJSON
@@ -40,10 +41,8 @@ describe('UTILS', () => {
       const method = 'POST'
       const baseURL = 'baseURL/'
       const url = 'url'
-      const payload = { some: { body: 'data' } }
-      return apifetch({
-        baseURL, url, method, payload,
-      })
+      const payload = { some: { body: 'data' }}
+      return apifetch({ baseURL, url, method, payload })
         .then(expect(serializeEJSON).to.have.been.calledWith(payload))
     })
 
@@ -68,15 +67,15 @@ describe('UTILS', () => {
 
     describe('response ok', () => {
       it('returns the deserialised result of json() if present', () => {
-        const payload = { some: { json: 'data' } }
-        const response = makeResponse({ ok: true, payload })
+        const payload = { some: { json: 'data' }}
+        const response = makeResponse({ ok: true, payload  })
         fetch.returns(response)
 
         const method = 'GET'
         const baseURL = 'baseURL/'
         const url = 'url'
         return apifetch(baseURL, url, method)
-          .then((result) => {
+          .then(result => {
             expect(deserializeEJSON).to.have.been.calledWith(payload)
             expect(result).to.be.deep.equal(payload)
           })
@@ -96,7 +95,7 @@ describe('UTILS', () => {
 
     describe('response error', () => {
       it('throws an APIError', () => {
-        const response = makeResponse({ ok: false })
+        const response = makeResponse({ ok: false  })
         fetch.returns(response)
 
         const method = 'GET'
@@ -106,20 +105,22 @@ describe('UTILS', () => {
           .catch(error => expect(error.name).to.be.equal('APIError'))
       })
       it('throws an APIError with parsed json if server includes any', () => {
-        const payload = { some: { error: 'data' } }
-        const response = makeResponse({ ok: false, payload })
+        const payload = { some: { error: 'data' }}
+        const response = makeResponse({ ok: false, payload  })
         fetch.returns(response)
 
         const method = 'GET'
         const baseURL = 'baseURL/'
         const url = 'url'
         return apifetch(baseURL, url, method)
-          .catch((error) => {
+          .catch(error => {
             expect(error.name).to.be.equal('APIError')
             expect(error.response.json).to.be.deep.equal(payload)
           })
+
       })
     })
+
   })
 
   describe('formatUrl', () => {

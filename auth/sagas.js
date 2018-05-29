@@ -1,4 +1,4 @@
-import { call, put, all, takeLatest } from 'redux-saga/effects'
+import { call, put, takeLatest, all } from 'redux-saga/effects'
 
 import { extractJWTAndSaveInfo } from './utils'
 import * as actions from './actions'
@@ -19,9 +19,7 @@ export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
       Sentry.captureException(error)
     }
     // Remove user details from sentry
-    Sentry.setUserContext({
-      email: '', userID: '', username: '', extra: {},
-    })
+    Sentry.setUserContext({ email: '', userID: '', username: '', extra: {} })
   }
 
   function* loginSaga(action) {
@@ -53,9 +51,7 @@ export default function configureAuthSagas({ Sentry, jwtStore }, apiSagas) {
       const last_name = action.payload.last_name || ''
       const user_type = action.payload.user_type || 'home' // user_type = ['home'|'business']
 
-      const payload = {
-        first_name, last_name, email, password, user_type,
-      }
+      const payload = { first_name, last_name, email, password, user_type }
 
       yield call(apiSagas.apiRequest, { meta: { endpoint }, payload })
       yield put(actions.registerUserSuccess())

@@ -35,4 +35,6 @@ const mapStateToProps = state => ({
   locale: selectLocaleCode(state),
 })
 
-export default connect(mapStateToProps)(Translator)
+export default connect(
+  mapStateToProps,
+)(Translator)

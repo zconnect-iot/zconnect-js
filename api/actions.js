@@ -61,7 +61,7 @@ export const apiRequest = (endpoint, params = {}, payload = {}) => ({
   payload,
 })
 
-export const apiBatchRequest = (storeKey, payload = []) => ({
+export const apiBatchRequest = (storeKey, payload = {}) => ({
   type: BATCH_REQUEST,
   meta: {
     storeKey,

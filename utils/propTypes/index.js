@@ -34,6 +34,8 @@ export const locationShape = PropTypes.shape({
 })
 
 export const emptyString = (props, propName, componentName) => {
-  if (props[propName] !== '') return new Error(`Invalid prop ${propName} supplied to ${componentName}. Expected empty string.`)
+  if (props[propName] !== '') return new Error(
+    `Invalid prop ${propName} supplied to ${componentName}. Expected empty string.`
+  )
   return undefined
 }

@@ -1,5 +1,4 @@
-import { delay } from 'redux-saga'
-import { put, all, call, select, race, cancel, fork, takeEvery, takeLatest } from 'redux-saga/effects'
+import { put, all, call, select, race, cancel, fork, takeEvery, delay, takeLatest } from 'redux-saga/effects'
 import { fromJS, Map } from 'immutable'
 
 import { requestPending, requestSuccess, requestError, requestCacheUsed, setPollInterval, batchRequestSuccess, batchRequestFailed } from './actions'
@@ -11,9 +10,7 @@ import authEndpoints from '../auth/endpoints'
 import { extractJWTAndSaveInfo } from '../auth/utils'
 
 
-export default function configureApiSagas({
-  Sentry, jwtStore, baseURL, endpoints, defaultParams = {}, defaultTimeout = 0,
-}) {
+export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints, defaultParams = {}, defaultTimeout = 0 }) {
   function* refreshJWT() {
     const url = 'api/v3/auth/refresh_token/'
     const method = 'POST'
@@ -59,13 +56,13 @@ export default function configureApiSagas({
     let token = ''
     try {
       token = yield call(jwtStore.get)
-      // if token undefined next line will be a reference error
+       // if token undefined next line will be a reference error
       return yield call(secureFetch, args)
     }
     catch (error) {
       const status = error.response && error.response.status
-      if (!token || status === 401 || status === 403)
-        try { // First try to get a new token and reperform request.
+      if (!token || status === 401 || status === 403) {
+        try {  // First try to get a new token and reperform request.
           yield call(refreshJWT)
           return yield call(secureFetch, args)
         }
@@ -73,7 +70,7 @@ export default function configureApiSagas({
           Sentry.captureMessage('Could not perform request after re-fetching JWT')
           yield put(logout())
         }
-
+      }
       throw error
     }
   }
@@ -82,9 +79,9 @@ export default function configureApiSagas({
   function* processParams(params = {}) {
     const selectors = Object.entries(params).filter(param => typeof param[1] === 'function')
     const p = { ...params }
-    for (let i = 0; i < selectors.length; i += 1)
+    for (let i = 0; i < selectors.length; i += 1) {
       p[selectors[i][0]] = yield select(selectors[i][1])
-
+    }
     return p
   }
 
@@ -92,9 +89,9 @@ export default function configureApiSagas({
     // TODO: Allow processing of nested selectors (currently only handles selectors at top level)
     const selectors = Object.entries(payload).filter(entry => typeof entry[1] === 'function')
     const p = { ...payload }
-    for (let i = 0; i < selectors.length; i += 1)
+    for (let i = 0; i < selectors.length; i += 1) {
       p[selectors[i][0]] = yield select(selectors[i][1])
-
+    }
     return p
   }
 
@@ -126,17 +123,15 @@ export default function configureApiSagas({
     try {
       let response = yield call(
         method,
-        {
-          url, method: config.method, payload, timeout: config.timeout,
-        },
+        { url, method: config.method, payload, timeout: config.timeout },
       )
-      if (config.storeMethod)
+      if (config.storeMethod) {
         response = config.storeMethod(
           yield select(selectResponse, requestKey),
           fromJS(response),
           params,
         )
-
+      }
       yield put(requestSuccess(endpoint, params, response, config.storeKey))
       return response
     }
@@ -153,7 +148,7 @@ export default function configureApiSagas({
     const requestKey = { endpoint, params, storeKey }
     let interval = action.meta.interval
     yield put(setPollInterval(endpoint, params, interval, storeKey))
-    while (interval)
+    while (interval) {
       try {
         const isPending = yield select(selectPending, requestKey)
         if (!isPending) yield call(apiRequest, action)
@@ -165,16 +160,22 @@ export default function configureApiSagas({
         yield put(setPollInterval(endpoint, params, interval, storeKey))
         Sentry.captureMessage(`Polling endpoint, ${action.meta.endpoint}, returned an error. Polling will be stopped.`)
       }
+    }
   }
 
   function* apiBatchRequest(action) {
     /*
-      Convert the list of actions to a list of call side effect wrapped actions but
+      Convert the map of actions to a map of call side effect wrapped actions but
       without the type key so that any errors are thrown (see line 141)
     */
+    const requests = Object.entries(action.payload).reduce(
+      (reqs, [key, { payload, meta }]) => ({
+        ...reqs,
+        [key]: call(apiRequest, { payload, meta }),
+      }),
+      {},
+    )
     try {
-      const requests = action.payload.map(({ payload, meta }) =>
-        call(apiRequest, { payload, meta }))
       yield all(requests)
       yield put(batchRequestSuccess(action.meta.storeKey))
     }

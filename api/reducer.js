@@ -1,7 +1,8 @@
-import { fromJS, Map, Iterable } from 'immutable'
+import { fromJS, Iterable } from 'immutable'
 import { transformError } from './utils'
 import {
- REQUEST_ERROR, REQUEST_SUCCESS, REQUEST_PENDING, POLL_REQUEST, SET_POLL_INTERVAL, REQUEST_RESET,
+ REQUEST_ERROR, REQUEST_SUCCESS, REQUEST_PENDING, SET_POLL_INTERVAL, REQUEST_RESET,
+ BATCH_REQUEST, BATCH_REQUEST_FAILED, BATCH_REQUEST_SUCCESS
 } from './constants'
 import { RESET_AUTH_API } from '../auth/constants'
 
@@ -70,15 +71,30 @@ export default function requestReducer(state = fromJS({}), action) {
       return state
         .setIn([request, 'polling'], action.meta.interval)
 
-    // case STOP_POLL_REQUEST:
-    //   return state
-    //     .setIn([request, 'polling'], false)
-
     case RESET_AUTH_API:
       return state
         .setIn([fromJS({ endpoint: 'login', params: {} }), 'state'], apiStates.get('initial'))
         .setIn([fromJS({ endpoint: 'register', params: {} }), 'state'], apiStates.get('initial'))
         .setIn([fromJS({ endpoint: 'resetPassword', params: {} }), 'state'], apiStates.get('initial'))
+
+    case BATCH_REQUEST:
+      return state
+        .setIn([request, 'state', 'pending'], true)
+        .setIn([request, 'state', 'success'], false)
+        .setIn([request, 'state', 'error'], false)
+
+    case BATCH_REQUEST_SUCCESS:
+      return state
+        .setIn([request, 'state', 'pending'], false)
+        .setIn([request, 'state', 'success'], true)
+
+    case BATCH_REQUEST_FAILED:
+      return state
+        .setIn([request, 'state', 'pending'], false)
+        .setIn([request, 'state', 'error'], true)
+        .setIn([request, 'error'], fromJS(transformError(action.payload)))
+    // The error stored here will be a duplicate of the one stored for the specific request
+    // that caused it
 
     default:
       return state

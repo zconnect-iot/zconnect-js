@@ -1,5 +1,5 @@
-import { takeEvery, delay, takeLatest } from 'redux-saga'
-import { put, all, call, select, race, cancel, fork } from 'redux-saga/effects'
+import { delay } from 'redux-saga'
+import { put, all, call, select, race, cancel, fork, takeEvery, takeLatest } from 'redux-saga/effects'
 import { fromJS, Map } from 'immutable'
 
 import { requestPending, requestSuccess, requestError, requestCacheUsed, setPollInterval, batchRequestSuccess, batchRequestFailed } from './actions'
@@ -166,15 +166,12 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
 
   function* apiBatchRequest(action) {
     /*
-      Convert the map of actions to a map of call side effect wrapped actions but
+      Convert the list of actions to a list of call side effect wrapped actions but
       without the type key so that any errors are thrown (see line 141)
     */
-    const requests = Object.entries(action.payload).reduce(
-      (reqs, [key, { payload, meta }]) => ({
-        ...reqs,
-        [key]: call(apiRequest, { payload, meta }),
-      }),
-      {},
+    const requests = action.payload.map(
+      (reqs, { payload, meta }) => call(apiRequest, { payload, meta }),
+      [],
     )
     try {
       yield all(requests)

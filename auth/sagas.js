@@ -1,5 +1,5 @@
 import { call, put } from 'redux-saga/effects'
-import { takeLatest } from 'redux-saga'
+import { takeLatest } from 'redux-saga/effects'
 
 import { extractJWTAndSaveInfo } from './utils'
 import * as actions from './actions'

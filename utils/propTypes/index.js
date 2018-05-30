@@ -39,3 +39,13 @@ export const emptyString = (props, propName, componentName) => {
   )
   return undefined
 }
+
+export const activityShape = PropTypes.shape({
+  id: PropTypes.string.isRequired,
+  verb: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  severity: PropTypes.number.isRequired,
+  created_at: PropTypes.string.isRequired,
+  category: PropTypes.string,
+  notify: PropTypes.bool,
+})

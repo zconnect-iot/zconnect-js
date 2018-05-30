@@ -1,5 +1,4 @@
-import { takeEvery, delay, takeLatest } from 'redux-saga'
-import { put, all, call, select, race, cancel, fork } from 'redux-saga/effects'
+import { put, all, call, select, race, cancel, fork, takeEvery, delay, takeLatest } from 'redux-saga/effects'
 import { fromJS, Map } from 'immutable'
 
 import { requestPending, requestSuccess, requestError, requestCacheUsed, setPollInterval, batchRequestSuccess, batchRequestFailed } from './actions'
@@ -206,12 +205,12 @@ export default function configureApiSagas({ Sentry, jwtStore, baseURL, endpoints
   }
 
   function* watcher() {
-    yield [
+    yield all([
       takeEvery(POLL_REQUEST, forkApiPoll),
       takeEvery(REQUEST, apiRequest),
       takeEvery(BATCH_REQUEST, apiBatchRequest),
       takeLatest(REFRESH_JWT, refreshJWT),
-    ]
+    ])
   }
 
   return {

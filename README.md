@@ -40,9 +40,9 @@ import './initialiseCore'
 import store from './App/store'
 import Root from './App/containers/Root'
 
-const ***REMOVED*** = () => <Root {...this.props} store={store} />
+const Novo = () => <Root {...this.props} store={store} />
 
-AppRegistry.registerComponent('***REMOVED***', () => ***REMOVED***)
+AppRegistry.registerComponent('Novo', () => Novo)
 ```
 
 #### Add sagas to root saga

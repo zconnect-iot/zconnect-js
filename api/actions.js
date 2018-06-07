@@ -7,6 +7,7 @@ import {
   REQUEST_SUCCESS,
   REQUEST_ERROR,
   REQUEST_RESET,
+  REQUEST_WIPE,
   REQUEST_CACHE_USED,
   POLL_REQUEST,
   SET_POLL_INTERVAL,
@@ -45,6 +46,15 @@ export const requestError = (endpoint, params = {}, error, storeKey) => ({
 
 export const apiReset = (endpoint, params = {}, storeKey) => ({
   type: REQUEST_RESET,
+  meta: {
+    endpoint,
+    params,
+    storeKey,
+  },
+})
+
+export const apiWipe = (endpoint, params = {}, storeKey) => ({
+  type: REQUEST_WIPE,
   meta: {
     endpoint,
     params,

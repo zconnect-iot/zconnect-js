@@ -1,8 +1,9 @@
-import { fromJS, Iterable } from 'immutable'
+import { fromJS, Iterable, Map } from 'immutable'
 import { transformError } from './utils'
 import {
- REQUEST_ERROR, REQUEST_SUCCESS, REQUEST_PENDING, SET_POLL_INTERVAL, REQUEST_RESET,
- BATCH_REQUEST, BATCH_REQUEST_FAILED, BATCH_REQUEST_SUCCESS
+  REQUEST_ERROR, REQUEST_SUCCESS, REQUEST_PENDING, SET_POLL_INTERVAL,
+  REQUEST_RESET, REQUEST_WIPE, BATCH_REQUEST, BATCH_REQUEST_FAILED,
+  BATCH_REQUEST_SUCCESS,
 } from './constants'
 import { RESET_AUTH_API } from '../auth/constants'
 
@@ -66,6 +67,10 @@ export default function requestReducer(state = fromJS({}), action) {
         .setIn([request, 'state'], apiStates.get('initial'))
         .setIn([request, 'updated'], null)
         .setIn([request, 'polling'], false)
+
+    case REQUEST_WIPE:
+      return state
+        .setIn([request], new Map())
 
     case SET_POLL_INTERVAL:
       return state

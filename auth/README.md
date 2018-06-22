@@ -67,7 +67,7 @@ Auth exports `selectLoginError`, `selectRegisterError`, `selectResetPasswordErro
 
 ### Validation
 
-No validation is carried out by the sagas. This needs to be done in the app though it could be added. Would need to ensure the validation errors are compatible with all apps i.e. not tied to translation string keys such as in novo-mobile-apps
+No validation is carried out by the sagas. This needs to be done in the app though it could be added. Would need to ensure the validation errors are compatible with all apps and the available translations in /locale
 
 For now, validation errors can be added to the store by dispatching `REQUEST_ERROR` actions with the endpoint specified in the meta and helper functions are included that do this for you e.g.
 

@@ -1,4 +1,4 @@
-# NOVO - API Module
+# ZConnect API Module
 
 The `apiRequest` saga is a wrapper around the `apiFetch` promisified fetch function which takes an endpoint key (and optionally params and payload objects). The endpoint key is used to configure the request as defined in the `endpoints` dictionary.
 

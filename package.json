@@ -8,6 +8,8 @@
     "test": "mocha --recursive --require babel-polyfill --require ./test.js --compilers js:babel-core/register --colors './api/**/*.spec.js' './auth/**/*.spec.js'",
     "test:watch": "mocha --recursive --require babel-polyfill --require ./test.js --compilers js:babel-core/register --colors -w .'./api/**/*.spec.js' './auth/**/*.spec.js'"
   },
+  "author": "Zoetrope Labs",
+  "license": "MIT",
   "devDependencies": {
     "babel-cli": "6.26.0",
     "babel-core": "6.26.3",
